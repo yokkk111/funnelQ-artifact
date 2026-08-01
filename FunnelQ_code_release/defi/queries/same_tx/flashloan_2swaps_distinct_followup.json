@@ -1,0 +1,55 @@
+{
+  "query_name": "flashloan_2swaps_distinct_followup",
+  "scope": "same_tx",
+  "events": [
+    {
+      "id": "e1",
+      "type": "flashloan",
+      "roles": {
+        "recipient": "$u",
+        "asset": "$x"
+      }
+    },
+    {
+      "id": "e2",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$x",
+        "token_bought": "$y1",
+        "pool": "$p1"
+      }
+    },
+    {
+      "id": "e3",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$x",
+        "token_bought": "$y2",
+        "pool": "$p2"
+      }
+    },
+    {
+      "id": "e4",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$y1",
+        "token_bought": "$z",
+        "pool": "$p3"
+      }
+    }
+  ],
+  "order": [
+    ["e1", "e2"],
+    ["e2", "e3"],
+    ["e3", "e4"]
+  ],
+  "attr_filters": [],
+  "neq_constraints": [
+    ["e2", "event_id", "e3", "event_id"],
+    ["e2", "pool", "e3", "pool"],
+    ["e2", "token_bought", "e3", "token_bought"]
+  ]
+}

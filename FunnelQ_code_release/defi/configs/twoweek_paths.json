@@ -1,0 +1,6 @@
+{
+  "description": "Portable two-week path template. Replace the relative data paths or override them through the runner configuration.",
+  "event_atoms_csv": "data/week2_build_work/combined_2weeks/event_atoms.csv",
+  "combined_raw_dir": "data/week2_build_work/combined_raw_mapped",
+  "outputs_dir": "runs/"
+}

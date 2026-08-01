@@ -1,0 +1,128 @@
+#ifndef MBFT_ADAPT_H
+#define MBFT_ADAPT_H
+
+#include "blockchain.h"
+#include "query.h"
+#include "transaction.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+struct DefiLoadMetrics {
+    uint64_t eventCount = 0;
+    uint64_t blockCount = 0;
+    uint64_t keywordCount = 0;
+    uint64_t payloadBytes = 0;
+};
+
+// Loads FunnelQ canonical events and maps them to original MBFT transactions.
+// Every event receives the same fixed keyword schema so that MergeBloom child
+// filters remain reconstructible at every tree level.
+TxnPool loadDefiEventPool(const string& csvPath, unsigned int seed, DefiLoadMetrics* metrics = nullptr);
+
+uint32_t computePayloadHash(const string& payload, unsigned int seed);
+Transaction transactionFromPayload(const string& payload, unsigned int seed);
+vector<string> keywordsFromPayload(const string& payload);
+
+struct AtomicSelectQuery {
+    uint32_t lowerBound = 0;
+    uint32_t upperBound = UINT32_MAX;
+    vector<vector<string>> keywordsCNF;
+};
+
+enum SelectFlag : uint8_t { SELECT_PRUNED = 0, SELECT_OPEN_LEAF = 1, SELECT_HINT = 2 };
+
+struct SelectVONode {
+    SelectFlag flag = SELECT_PRUNED;
+    uint32_t hash = 0;
+    unsigned int nCurrentItems = 0;
+    vector<unsigned char> data; // full MBF for pruned nodes, MergeBloom hint for SELECT_HINT
+    uint32_t lowerBound = 0;
+    uint32_t upperBound = 0;
+    double value = 0;
+    string payload;             // only for SELECT_OPEN_LEAF
+
+    size_t serializedSize() const;
+};
+
+struct RootCommitment {
+    uint32_t startBlock = 0;
+    uint32_t endBlock = 0;
+    RootType rootType = AMOUNT_ADS;
+    uint32_t rootHash = 0;
+    unsigned int seed = 0;
+    ParamBF paramBF;
+};
+
+struct RootSelectionProof {
+    uint32_t startBlock = 0;
+    uint32_t endBlock = 0;
+    RootType rootType = AMOUNT_ADS;
+    vector<SelectVONode> nodes; // verifier processing order
+};
+
+struct SelectionMetrics {
+    uint64_t roots = 0;
+    uint64_t voNodes = 0;
+    uint64_t hintNodes = 0;
+    uint64_t prunedNodes = 0;
+    uint64_t openedLeaves = 0;
+    uint64_t matchedLeaves = 0;
+    uint64_t falsePositiveLeaves = 0;
+    uint64_t rawMatchedLeaves = 0;
+    uint64_t uniqueMatchedEvents = 0;
+    uint64_t hintBytes = 0;
+    uint64_t prunedBloomBytes = 0;
+    uint64_t payloadBytes = 0;
+    uint64_t proofBytes = 0;
+    double queryMicros = 0;
+    double verifyMicros = 0;
+    double reconstructMicros = 0;
+};
+
+struct AtomicSelectionProof {
+    AtomicSelectQuery query;
+    vector<RootSelectionProof> roots;
+};
+
+struct VerifiedSelection {
+    bool valid = false;
+    vector<string> payloads;
+    SelectionMetrics metrics;
+};
+
+// Query-only selection used by the DeFi performance baseline. It traverses
+// the same MBFT MergeBloom trees and applies the same Boolean/range pruning as
+// selectAllChain(), but emits no HINT/PRUNED VO nodes and runs no verifier.
+// Matching canonical payloads remain on the server and are passed to the
+// complex-event matcher.
+struct QueryOnlySelection {
+    vector<string> payloads;
+    SelectionMetrics metrics;
+};
+
+RootSelectionProof selectAllSingleRoot(Block* block, RootType rootType,
+                                       const AtomicSelectQuery& query,
+                                       SelectionMetrics* metrics = nullptr);
+
+AtomicSelectionProof selectAllChain(const Chain& chain, const AtomicSelectQuery& query,
+                                    vector<RootCommitment>* commitments,
+                                    SelectionMetrics* metrics = nullptr);
+
+VerifiedSelection verifyAtomicSelection(const AtomicSelectionProof& proof,
+                                        const vector<RootCommitment>& commitments);
+
+QueryOnlySelection selectAllChainNoProof(const Chain& chain,
+                                         const AtomicSelectQuery& query);
+
+void saveAtomicSelectionProof(const AtomicSelectionProof& proof, const string& path);
+AtomicSelectionProof loadAtomicSelectionProof(const string& path);
+void saveCommitments(const vector<RootCommitment>& commitments, const string& path);
+vector<RootCommitment> loadCommitments(const string& path);
+
+void writePayloadsJsonl(const vector<string>& payloads, const string& path);
+void writeSelectionMetricsJson(const SelectionMetrics& metrics, const string& path,
+                               const string& eventType = "");
+
+#endif // MBFT_ADAPT_H

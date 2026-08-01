@@ -1,0 +1,62 @@
+{
+  "query_name": "flashloan_3swaps_chain_reuse",
+  "scope": "same_tx",
+  "events": [
+    {
+      "id": "e1",
+      "type": "flashloan",
+      "roles": {
+        "recipient": "$u",
+        "asset": "$x"
+      }
+    },
+    {
+      "id": "e2",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$x",
+        "token_bought": "$y1",
+        "pool": "$p1"
+      }
+    },
+    {
+      "id": "e3",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$y1",
+        "token_bought": "$y2",
+        "pool": "$p2"
+      }
+    },
+    {
+      "id": "e4",
+      "type": "swap",
+      "roles": {
+        "taker": "$u",
+        "token_sold": "$y2",
+        "token_bought": "$y3",
+        "pool": "$p3"
+      }
+    }
+  ],
+  "order": [
+    ["e1", "e2"],
+    ["e2", "e3"],
+    ["e3", "e4"]
+  ],
+  "attr_filters": [],
+  "neq_constraints": [
+    ["e2", "event_id", "e3", "event_id"],
+    ["e2", "event_id", "e4", "event_id"],
+    ["e3", "event_id", "e4", "event_id"],
+    ["e2", "pool", "e3", "pool"],
+    ["e2", "pool", "e4", "pool"],
+    ["e3", "pool", "e4", "pool"],
+    ["e1", "asset", "e2", "token_bought"],
+    ["e1", "asset", "e3", "token_bought"],
+    ["e1", "asset", "e4", "token_bought"],
+    ["e2", "token_bought", "e4", "token_bought"]
+  ]
+}

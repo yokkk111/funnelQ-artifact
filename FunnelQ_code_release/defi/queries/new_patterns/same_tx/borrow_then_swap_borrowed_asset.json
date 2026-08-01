@@ -1,0 +1,11 @@
+{
+  "query_name": "borrow_then_swap_borrowed_asset",
+  "scope": "same_tx",
+  "events": [
+    {"id": "e1", "type": "borrow", "roles": {"borrower": "$u", "asset": "$x"}},
+    {"id": "e2", "type": "swap", "roles": {"taker": "$u", "token_sold": "$x", "token_bought": "$y"}}
+  ],
+  "order": [["e1", "e2"]],
+  "attr_filters": [{"event": "e1", "field": "amount", "op": ">", "value": "0"}],
+  "neq_constraints": []
+}

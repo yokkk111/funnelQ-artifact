@@ -1,0 +1,11 @@
+{
+  "dataset_name": "month3_2026q1",
+  "description": "Three-month Ethereum dataset covering 2026-01-01 through 2026-03-31.",
+  "raw_files": {
+    "flashloans": "data/month3_dateset/lending.flashloans.csv",
+    "borrow": "data/month3_dateset/lending.borrow.csv",
+    "dex": "data/month3_dateset/dex.trades.csv"
+  },
+  "event_atoms_csv": "data/month3_build_work/normalized/event_atoms.csv",
+  "work_root": "data/month3_build_work/fair_cost_month3"
+}

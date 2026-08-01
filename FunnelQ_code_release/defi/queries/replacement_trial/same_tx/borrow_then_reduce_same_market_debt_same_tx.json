@@ -1,0 +1,22 @@
+{
+  "query_name": "borrow_then_reduce_same_market_debt_same_tx",
+  "scope": "same_tx",
+  "events": [
+    {
+      "id": "e1",
+      "type": "borrow",
+      "roles": {"borrower": "$u", "asset": "$x", "pool": "$p"}
+    },
+    {
+      "id": "e2",
+      "type": "borrow",
+      "roles": {"borrower": "$u", "asset": "$x", "pool": "$p"}
+    }
+  ],
+  "order": [["e1", "e2"]],
+  "attr_filters": [
+    {"event": "e1", "field": "amount", "op": ">", "value": "0"},
+    {"event": "e2", "field": "amount", "op": "<", "value": "0"}
+  ],
+  "neq_constraints": []
+}

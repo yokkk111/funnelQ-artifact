@@ -1,0 +1,75 @@
+{
+  "query_name": "Q2_CROSS_NFT_RECIPROCAL",
+  "query_version": "compact_full_binding_v4_selected5_v1",
+  "description": "A short-horizon cross-transaction reciprocal exchange: A sells NFT x to B and B sells a different NFT y back to A within 30 minutes.",
+  "full_binding_plan": {
+    "query_id": "Q2_CROSS_NFT_RECIPROCAL",
+    "result_semantics": "full_event_binding_v1",
+    "delta_seconds": 1800,
+    "branches": [
+      {
+        "branch_id": "cross_nft_reciprocal",
+        "event_patterns": [
+          {
+            "id": "root",
+            "event_type": "NFTTrade",
+            "src": "$A",
+            "dst": "$B",
+            "nft": "$x",
+            "collection": "$collection"
+          },
+          {
+            "id": "back",
+            "event_type": "NFTTrade",
+            "src": "$B",
+            "dst": "$A",
+            "nft": "$y",
+            "collection": "$collection"
+          }
+        ],
+        "constraints": [
+          {
+            "type": "order",
+            "sequence": [
+              "root",
+              "back"
+            ]
+          },
+          {
+            "type": "strict_time_order",
+            "sequence": [
+              "root",
+              "back"
+            ]
+          },
+          {
+            "type": "within",
+            "earlier": "root",
+            "later": "back",
+            "delta_seconds": 1800
+          },
+          {
+            "type": "not_equal",
+            "left": "$x",
+            "right": "$y"
+          },
+          {
+            "type": "distinct_event_ids",
+            "events": [
+              "root",
+              "back"
+            ]
+          },
+          {
+            "type": "distinct_transactions",
+            "events": [
+              "root",
+              "back"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "result_semantics": "full_event_binding_v1"
+}

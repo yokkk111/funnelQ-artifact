@@ -1,0 +1,21 @@
+{
+  "query_name": "flashloan_then_debt_reduction_same_tx",
+  "scope": "same_tx",
+  "events": [
+    {
+      "id": "e1",
+      "type": "flashloan",
+      "roles": {"recipient": "$u", "asset": "$x"}
+    },
+    {
+      "id": "e2",
+      "type": "borrow",
+      "roles": {"borrower": "$u", "asset": "$x"}
+    }
+  ],
+  "order": [["e1", "e2"]],
+  "attr_filters": [
+    {"event": "e2", "field": "amount", "op": "<", "value": "0"}
+  ],
+  "neq_constraints": []
+}

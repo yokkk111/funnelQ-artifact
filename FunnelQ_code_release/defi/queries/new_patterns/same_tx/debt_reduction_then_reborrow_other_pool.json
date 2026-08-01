@@ -1,0 +1,14 @@
+{
+  "query_name": "debt_reduction_then_reborrow_other_pool",
+  "scope": "same_tx",
+  "events": [
+    {"id": "e1", "type": "borrow", "roles": {"borrower": "$u", "asset": "$x", "pool": "$p1"}},
+    {"id": "e2", "type": "borrow", "roles": {"borrower": "$u", "asset": "$x", "pool": "$p2"}}
+  ],
+  "order": [["e1", "e2"]],
+  "attr_filters": [
+    {"event": "e1", "field": "amount", "op": "<", "value": "0"},
+    {"event": "e2", "field": "amount", "op": ">", "value": "0"}
+  ],
+  "neq_constraints": [["e1", "pool", "e2", "pool"]]
+}

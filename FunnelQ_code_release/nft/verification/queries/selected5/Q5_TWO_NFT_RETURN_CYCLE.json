@@ -1,0 +1,96 @@
+{
+  "query_name": "Q5_TWO_NFT_RETURN_CYCLE",
+  "query_version": "compact_full_binding_v4_selected5_v1",
+  "description": "A short-horizon cross-transaction mixed-asset cycle within 30 minutes: x moves A to B, y moves B to C, and x returns from C to A.",
+  "full_binding_plan": {
+    "query_id": "Q5_TWO_NFT_RETURN_CYCLE",
+    "result_semantics": "full_event_binding_v1",
+    "delta_seconds": 1800,
+    "branches": [
+      {
+        "branch_id": "two_nft_return_cycle",
+        "event_patterns": [
+          {
+            "id": "root",
+            "event_type": "NFTTrade",
+            "src": "$A",
+            "dst": "$B",
+            "nft": "$x",
+            "collection": "$collection"
+          },
+          {
+            "id": "middle",
+            "event_type": "NFTTrade",
+            "src": "$B",
+            "dst": "$C",
+            "nft": "$y",
+            "collection": "$collection"
+          },
+          {
+            "id": "back",
+            "event_type": "NFTTrade",
+            "src": "$C",
+            "dst": "$A",
+            "nft": "$x",
+            "collection": "$collection"
+          }
+        ],
+        "constraints": [
+          {
+            "type": "order",
+            "sequence": [
+              "root",
+              "middle",
+              "back"
+            ]
+          },
+          {
+            "type": "strict_time_order",
+            "sequence": [
+              "root",
+              "middle",
+              "back"
+            ]
+          },
+          {
+            "type": "within",
+            "earlier": "root",
+            "later": "back",
+            "delta_seconds": 1800
+          },
+          {
+            "type": "not_equal",
+            "left": "$x",
+            "right": "$y"
+          },
+          {
+            "type": "min_distinct",
+            "values": [
+              "$A",
+              "$B",
+              "$C"
+            ],
+            "min_count": 3
+          },
+          {
+            "type": "distinct_event_ids",
+            "events": [
+              "root",
+              "middle",
+              "back"
+            ]
+          },
+          {
+            "type": "distinct_transactions",
+            "events": [
+              "root",
+              "middle",
+              "back"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "result_semantics": "full_event_binding_v1"
+}

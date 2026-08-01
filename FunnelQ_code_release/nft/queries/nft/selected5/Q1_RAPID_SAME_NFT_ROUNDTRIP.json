@@ -1,0 +1,26 @@
+{
+  "query_name": "Q1_RAPID_SAME_NFT_ROUNDTRIP",
+  "description": "A short-horizon cross-transaction NFTTrade round trip: A sells NFT x to B and B sells x back to A within 30 minutes.",
+  "full_binding_plan": {
+    "query_id": "Q1_RAPID_SAME_NFT_ROUNDTRIP",
+    "result_semantics": "full_event_binding_v1",
+    "delta_seconds": 1800,
+    "branches": [
+      {
+        "branch_id": "same_nft_roundtrip",
+        "event_patterns": [
+          {"id": "root", "event_type": "NFTTrade", "src": "$A", "dst": "$B", "nft": "$x", "collection": "$collection"},
+          {"id": "back", "event_type": "NFTTrade", "src": "$B", "dst": "$A", "nft": "$x", "collection": "$collection"}
+        ],
+        "constraints": [
+          {"type": "order", "sequence": ["root", "back"]},
+          {"type": "strict_time_order", "sequence": ["root", "back"]},
+          {"type": "within", "earlier": "root", "later": "back", "delta_seconds": 1800},
+          {"type": "distinct_event_ids", "events": ["root", "back"]},
+          {"type": "distinct_transactions", "events": ["root", "back"]}
+        ]
+      }
+    ]
+  },
+  "result_semantics": "full_event_binding_v1"
+}

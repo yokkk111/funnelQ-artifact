@@ -1,0 +1,12 @@
+{
+  "query_name": "swap_then_borrow_bought_asset_episode",
+  "scope": "anchored_episode",
+  "events": [
+    {"id": "e1", "type": "swap", "roles": {"taker": "$u", "token_sold": "$x", "token_bought": "$y"}},
+    {"id": "e2", "type": "borrow", "roles": {"borrower": "$u", "asset": "$y"}}
+  ],
+  "order": [["e1", "e2"]],
+  "attr_filters": [{"event": "e2", "field": "amount", "op": ">", "value": "0"}],
+  "neq_constraints": [],
+  "scope_params": {"semantic_anchor_event": "e1", "execution_anchor_event": "auto", "forward_window_sec": 60}
+}

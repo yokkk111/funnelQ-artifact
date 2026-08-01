@@ -1,0 +1,29 @@
+{
+  "query_name": "Q4_THREE_NFT_THREE_ACTOR_CYCLE",
+  "description": "A short-horizon cross-transaction three-actor cycle within 30 minutes from A to B to C to A using three distinct NFTs.",
+  "full_binding_plan": {
+    "query_id": "Q4_THREE_NFT_THREE_ACTOR_CYCLE",
+    "result_semantics": "full_event_binding_v1",
+    "delta_seconds": 1800,
+    "branches": [
+      {
+        "branch_id": "three_nft_three_actor_cycle",
+        "event_patterns": [
+          {"id": "root", "event_type": "NFTTrade", "src": "$A", "dst": "$B", "nft": "$x", "collection": "$collection"},
+          {"id": "middle", "event_type": "NFTTrade", "src": "$B", "dst": "$C", "nft": "$y", "collection": "$collection"},
+          {"id": "back", "event_type": "NFTTrade", "src": "$C", "dst": "$A", "nft": "$z", "collection": "$collection"}
+        ],
+        "constraints": [
+          {"type": "order", "sequence": ["root", "middle", "back"]},
+          {"type": "strict_time_order", "sequence": ["root", "middle", "back"]},
+          {"type": "within", "earlier": "root", "later": "back", "delta_seconds": 1800},
+          {"type": "min_distinct", "values": ["$A", "$B", "$C"], "min_count": 3},
+          {"type": "min_distinct", "values": ["$x", "$y", "$z"], "min_count": 3},
+          {"type": "distinct_event_ids", "events": ["root", "middle", "back"]},
+          {"type": "distinct_transactions", "events": ["root", "middle", "back"]}
+        ]
+      }
+    ]
+  },
+  "result_semantics": "full_event_binding_v1"
+}
