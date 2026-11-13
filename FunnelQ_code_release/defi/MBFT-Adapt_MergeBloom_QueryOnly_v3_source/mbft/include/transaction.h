@@ -32,11 +32,11 @@ public:
     vector<double> sketches;
 
 private:
-    // Shared immutable event material keeps Transaction copies cheap. Original
-    // MBFT creates sorted and combined transaction vectors; owning the strings
-    // in every copy is unnecessary and makes the DeFi adaptation exceed memory.
+                                                                               
+                                                                               
+                                                                                
     shared_ptr<const vector<string>> addressesData;
     shared_ptr<const string> payloadData;
 };
 
-#endif //TRANSACTION_H
+#endif                

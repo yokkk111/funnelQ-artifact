@@ -42,7 +42,7 @@ def raw_events(kind: str, path: Path):
             log_index = int(float(BASE.norm(row.get("evt_index")) or 0))
             block_ts = timestamp_seconds(row.get("block_time"))
             block_number = int(float(BASE.norm(row.get("block_number")) or 0))
-            tx_position = 0  # No tx_index/transaction_index column in this dataset.
+            tx_position = 0
             project, version = BASE.norm(row.get("project")), BASE.norm(row.get("version"))
             proto = f"{project}:{version}" if project and version else project or version
             if kind == "flashloan":

@@ -1079,9 +1079,9 @@ pub fn load_store_from_sqlite(sqlite_path: &str, query: Option<&QuerySpec>) -> R
     let mut edge_id_to_idx = HashMap::new();
     {
         if let Some(q) = query.filter(|q| q.scope == "anchored_episode") {
-            // Persist only compact temporal metadata.  The large edge JSON remains
-            // in hg_hyperedges and is fetched on demand for rows covered by an
-            // anchor's forward window.
+                                                                                   
+                                                                               
+                                       
             conn.execute_batch(
                 "CREATE TABLE IF NOT EXISTS hg_query_role_index_v2(
                     edge_rowid INTEGER PRIMARY KEY,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 
 from __future__ import annotations
 
@@ -257,8 +257,8 @@ def build_conditions(query: dict, specs: List[EventSpec]):
 
 
 def build_from_optimizer_free(specs_prefix: List[EventSpec], alias_to_index: Dict[str, str]) -> str:
-    # Do not force CROSS JOIN or INDEXED BY. Query-specific indexes may exist,
-    # but SQLite is allowed to choose the physical join order and access path.
+
+
     return "\nJOIN ".join(f"event_atoms_flat AS {spec.alias}" for spec in specs_prefix)
 
 

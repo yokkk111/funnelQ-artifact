@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-"""Run MBFT-Adapt query-only DeFi workloads without VO generation/verification.
 
-The MBFT C++ process first performs faithful MergeBloom-tree selection for each
-atomic event type and writes the selected server-side payloads.  This script
-then executes the same count-only SameTx/Episode matcher used by the adaptation.
-No proof is generated and no client verification is performed.
-"""
+
 from __future__ import annotations
 
 import argparse

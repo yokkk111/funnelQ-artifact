@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Summary/count-only query runner for encoded same-tx HVCEQ sidecar."""
+
+
 from __future__ import annotations
 
 import argparse
@@ -168,7 +168,7 @@ class EncodedSameTxRuntime:
 
     def role_id(self, idx: int, field: str) -> int:
         if field == "event_id":
-            # event_id is represented by the unique event_ord for equality/neq.
+
             return int(self.event_ord[idx])
         arr = self.role_arrays.get(field)
         return int(arr[idx]) if arr is not None else 0
@@ -191,8 +191,8 @@ def type_multiplicity(query: dict, rt: EncodedSameTxRuntime) -> Counter:
 
 
 def build_query_plan(query: dict, rt: EncodedSameTxRuntime) -> List[dict]:
-    # Use a deterministic, selectivity-aware order for the HVCEQ encoded runner.
-    # This is independent of SQL's join-order policy and does not alter semantics.
+
+
     total_by_type = Counter(rt.event_type_id)
     order_pairs = {tuple(x) for x in query.get("order", [])}
     neq_pairs = {tuple(x) for x in query.get("neq_constraints", [])}
@@ -216,8 +216,7 @@ def build_query_plan(query: dict, rt: EncodedSameTxRuntime) -> List[dict]:
             "global_type_count": int(total_by_type.get(etid, 10**12)),
         })
 
-    # Greedy order: rare event type first, then constants, then variables.  To
-    # keep common patterns efficient, flashloan usually wins by rarity.
+
     events.sort(key=lambda x: (x["global_type_count"], -x["const_weight"], -x["var_weight"], x["idx"]))
     return events
 
@@ -287,7 +286,7 @@ def can_assign(
                     bindings.pop(var, None)
                 return False, []
 
-    # Incremental order constraints.
+
     for left_id, right_id in query.get("order", []):
         if left_id == qid and right_id in selected:
             if int(rt.seq_index[event_idx]) >= int(rt.seq_index[selected[right_id]]):
@@ -300,7 +299,7 @@ def can_assign(
                     bindings.pop(var, None)
                 return False, []
 
-    # Incremental neq constraints.
+
     for left_id, left_field, right_id, right_field in query.get("neq_constraints", []):
         if left_id == qid and right_id == qid:
             if rt.role_id(event_idx, left_field) == rt.role_id(event_idx, right_field):
@@ -318,8 +317,7 @@ def can_assign(
                     bindings.pop(var, None)
                 return False, []
 
-    # Attribute filters.  The current benchmark has none, but keep the runner
-    # semantically complete for numeric amount-like fields.
+
     for flt in query.get("attr_filters", []):
         if flt.get("event") != qid:
             continue
@@ -338,7 +336,7 @@ def can_assign(
                     bindings.pop(var, None)
                 return False, []
         else:
-            # Non-numeric equality filters can be represented as role constants.
+
             if op != "=":
                 raise ValueError(f"Non-numeric attr filter only supports '=': {field} {op}")
             lhs = rt.role_id(event_idx, field)
@@ -465,7 +463,7 @@ def main() -> int:
     outdir = Path(args.outdir)
     with open(outdir / "query_result.json", "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
-    # Keep output strictly summary/count-only.
+
     (outdir / "matched_instances.csv").write_text("", encoding="utf-8")
     (outdir / "matched_bindings.csv").write_text("", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))

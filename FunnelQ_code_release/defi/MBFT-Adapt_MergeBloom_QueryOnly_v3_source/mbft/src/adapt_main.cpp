@@ -75,8 +75,8 @@ int runCommand(const unordered_map<string,string>& args) {
     json selections = json::object();
     vector<RootCommitment> referenceCommitments;
 
-    // Server phase. The chain and its event payloads are destroyed before the
-    // proof files are loaded by the client phase below.
+                                                                              
+                                                        
     {
         DefiLoadMetrics loadMetrics;
         cerr << "[adapt] loading CSV...\n";
@@ -92,8 +92,8 @@ int runCommand(const unordered_map<string,string>& args) {
         chain.buildChain(pool);
         const double buildUs = duration<double, micro>(high_resolution_clock::now() - buildStart).count();
         cerr << "[adapt] built chain with " << chain.getSize() << " blocks\n";
-        // Chain transaction vectors share immutable event material. The loader
-        // pool is no longer needed after construction.
+                                                                               
+                                                       
         vector<Transaction>().swap(pool.pool);
         vector<int>().swap(pool.blkIndex);
 
@@ -145,14 +145,14 @@ int runCommand(const unordered_map<string,string>& args) {
         cerr << "[adapt] server phase complete; releasing MBFT chain before client verification...\n";
     }
 
-    // Client phase: only commitments and serialized VO files are available.
+                                                                            
     for (const string& type : types) {
         cerr << "[adapt] independently verifying " << type << "...\n";
         const fs::path proofPath = outdir / (type + ".mbfhint.proof");
         AtomicSelectionProof loadedProof = loadAtomicSelectionProof(proofPath.string());
         vector<RootCommitment> loadedCommitments = loadCommitments((outdir / "commitments.json").string());
         VerifiedSelection verified = verifyAtomicSelection(loadedProof, loadedCommitments);
-        // Release the proof before retaining the output candidate payloads.
+                                                                            
         loadedProof.roots.clear(); loadedProof.roots.shrink_to_fit();
         verified.metrics.proofBytes = fs::file_size(proofPath);
         const fs::path verifiedPath = outdir / (type + ".verified.jsonl");
@@ -333,7 +333,7 @@ int inspectIndexCommand(const unordered_map<string,string>& args) {
     return 0;
 }
 
-} // namespace
+}             
 
 int main(int argc, char** argv) {
     try {

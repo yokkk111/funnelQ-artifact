@@ -163,16 +163,11 @@ class EncodedRuntime:
         amount_in_expr = "amount_in_num" if self._has_column("support_swap", "amount_in_num") else "0.0"
         amount_out_expr = "amount_out_num" if self._has_column("support_swap", "amount_out_num") else "0.0"
         tmp: Dict[Tuple[int, int], List[int]] = defaultdict(list)
-        # A query-independent directory for canonical swaps that contain all
-        # four schema roles.  It is used only by the count-only terminal
-        # aggregate in the generic matcher; normal matching keeps the full
-        # posting directory and validates roles event by event.
+
+
         tmp_complete: Dict[Tuple[int, int], List[int]] = defaultdict(list)
-        # Anti-join counting directories are intentionally not built here.
-        # They can add noticeable RSS for simple episode queries that never
-        # need terminal neq aggregation.  When a count-only query actually
-        # reaches a large terminal anti-join domain, they are built lazily by
-        # _ensure_swap_terminal_anti_join_dirs().
+
+
         for row in self.conn.execute(
             """
             SELECT global_event_ord, global_tx_ord, seq_index, protocol_id, taker_id, token_sold_id, token_bought_id, pool_id,
@@ -265,14 +260,8 @@ class EncodedRuntime:
             )
 
     def _ensure_swap_terminal_anti_join_dirs(self) -> bool:
-        """Build fixed swap anti-join directories only when a query needs them.
 
-        This keeps simple Episode queries from paying the RSS cost of
-        `(taker, sold, bought)`, `(taker, sold, pool)`, and
-        `(taker, sold, bought, pool)` directories.  The directories are still
-        schema-level and query-name independent; the query JSON only decides
-        whether the exact terminal-domain optimization is worth activating.
-        """
+
         if self.swap_terminal_anti_join_dirs_built:
             return True
         if not self.enable_terminal_anti_join_dirs:
@@ -360,16 +349,8 @@ class EncodedRuntime:
         exclude_bought: Iterable[int] = (),
         exclude_pool: Iterable[int] = (),
     ) -> int:
-        """Exact count in a canonical swap terminal domain with anti-joins.
 
-        With no terminal neq predicates, this is just a range count over the
-        complete `(taker, sold)` directory.  With neq predicates, the method
-        first uses a direct per-domain scan for small terminal domains; only
-        large anti-join domains trigger construction of the global fixed
-        anti-join directories.  This reduces peak RSS for simple queries while
-        preserving the fast inclusion-exclusion path for large three-swap
-        Episode queries.
-        """
+
         if not self.enable_terminal_complete_dirs:
             return 0
         t = int(taker)

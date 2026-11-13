@@ -1,0 +1,8 @@
+{
+  "name": "funnelq-artifact",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "solc": "0.8.28"
+  }
+}

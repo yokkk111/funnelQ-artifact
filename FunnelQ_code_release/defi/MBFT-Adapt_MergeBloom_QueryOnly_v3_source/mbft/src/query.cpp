@@ -22,11 +22,11 @@ bool Query::overlap(const uint32_t& lBoundIn, const uint32_t& uBoundIn, const do
 
     if (earlyStop) {
         bool res = (valueIn > earlyValue) && (lBoundIn <= upperBound) && (lowerBound <= uBoundIn);
-        // cout << "res: " << res << endl;
+                                          
         return res;
     }
     bool res = (lBoundIn <= upperBound) && (lowerBound <= uBoundIn);
-    // cout << "res: " << res << endl;
+                                      
     return res;
 }
 
@@ -77,7 +77,7 @@ ReVONode::ReVONode(MyFlag myFlagIn, BloomFilter* bfIn, uint32_t hashIn, uint32_t
 {
 }
 
-// Hash
+       
 
 uint32_t Hash(const uint32_t hash1, const uint32_t hash2, uint32_t lBound, uint32_t uBound, double value, BloomFilter * pBF,
               unsigned int nSeed)
@@ -94,7 +94,7 @@ uint32_t Hash(const uint32_t hash1, const uint32_t hash2, uint32_t lBound, uint3
     return hash;
 }
 
-// DNF boolean
+              
 
 bool match(const vector<string>& addrs, const vector<vector<string>>& wordsCNF)
 {
@@ -116,9 +116,9 @@ bool match(const vector<string>& addrs, const vector<vector<string>>& wordsCNF)
     return true;
 }
 
-// Merge BF Query & Verify ------------------------------
+                                                         
 
-//pair<double, stack<VONode>> singleQuery(MerkleBFNode * root, const Query& query) {
+                                                                                    
 pair<double, stack<VONode>> singleQuery(Block* blk, RootType rootType, const Query& query) {
     stack<pair<MyFlag, MerkleBFNode*>> sNode;
     stack<VONode> sVO;
@@ -136,22 +136,22 @@ pair<double, stack<VONode>> singleQuery(Block* blk, RootType rootType, const Que
         tie(myFlag,current) = sNode.top();
         sNode.pop();
 
-        // If already found result, assert remaining are LEFT
+                                                             
         if (isFound) {
             assert(myFlag == LEFT);
             sVO.emplace(VONode(LEFT, current->getHash(), current->getBF()->nCurrentItems, current->getBF()->getVecBF(),
                                current->getLowerBound(), current->getUpperBound(), current->getValue()));
         }
-        // check if satisfy
+                           
         else if (current->satisfy(query.addresses, query.lowerBound, query.upperBound, query.earlyValue)) {
-            // Internal node matches, get hint, push children
+                                                             
             if (current->hasChildren()) {
                 sVO.emplace(VONode(HINT, 0, 0, current->getBF()->getHint(),
                                    current->getLowerBound(), current->getUpperBound(), current->getValue()));
                 sNode.emplace(pair<MyFlag, MerkleBFNode*>(LEFT, (MerkleBFNode*)current->getLeftChild()));
                 sNode.emplace(pair<MyFlag, MerkleBFNode*>(RIGHT, (MerkleBFNode*)current->getRightChild()));
             }
-            // Leaf node matches, it's the result
+                                                 
             else {
                 assert(current->getLowerBound() == current->getUpperBound());
                 assert(current->getLeafTxnIndex() != -1);
@@ -159,7 +159,7 @@ pair<double, stack<VONode>> singleQuery(Block* blk, RootType rootType, const Que
                 Transaction txn = (rootType % 2 == 0) ? blk->getTxn(current->getLeafTxnIndex()) : blk->getTxnCombine(current->getLeafTxnIndex());
 
                 if (match(txn.getAddresses(), query.addresses)) {
-                    // cout << "match leaf" << endl;
+                                                    
                     result = current->getValue();
                     sVO.emplace(VONode(RES, current->getHash(), current->getBF()->nCurrentItems, current->getBF()->getVecBF(),
                                    current->getLowerBound(), current->getUpperBound(), current->getValue()));
@@ -169,16 +169,16 @@ pair<double, stack<VONode>> singleQuery(Block* blk, RootType rootType, const Que
                     if (myFlag == LEFT) {
                         myFlag = ASTRAY;
                     }
-                    // cout << "astray leaf txn index: " << current->getLeafTxnIndex() << endl;
+                                                                                               
                     sVO.emplace(VONode(myFlag, current->getHash(), current->getBF()->nCurrentItems, current->getBF()->getVecBF(),
                                current->getLowerBound(), current->getUpperBound(), current->getValue(), current->getLeafTxnIndex()));
                 }                
             }
         }
-        // Not satisfy, push node's BF. RIGHT stay RIGHT, LEFT turns ASTRAY
+                                                                           
         else {
             if (myFlag == LEFT) {
-                // cout << "left astray" << endl;
+                                                 
                 myFlag = ASTRAY;
             }
 
@@ -189,7 +189,7 @@ pair<double, stack<VONode>> singleQuery(Block* blk, RootType rootType, const Que
     return pair<double, stack<VONode>>{result, sVO};
 }
 
-// return result value;
+                       
 double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType rootType, ExperimentMetrics& metrics) {
     time_point<system_clock> start, end, startP, endP;
     startP = system_clock::now();
@@ -218,7 +218,7 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
     while(!sVO.empty()) {
         myFlag = sVO.top().myFlag;
         bfSize += sVO.top().getSizeBF();
-        // Hint: pop 2 children to reconstruct
+                                              
         if (myFlag == HINT) {
             start = system_clock::now();
 
@@ -230,7 +230,7 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
 
             sReVO.pop();
 
-            // Reconstruct
+                          
             bf = left.bf->reconstruct(right.bf, hint.vData);
 
             bfGC.emplace_back(bf);
@@ -254,7 +254,7 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
             dur = duration_cast<microseconds>(end - start);
             metrics.reconstTime += dur.count();
         }
-        // Other
+                
         else {
             start = system_clock::now();
             paramBF.nCurrentItems = sVO.top().nCurrentItems;
@@ -270,16 +270,16 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
             upperBound = sVO.top().upperBound;
             value = sVO.top().value;
             txnIndex = sVO.top().txnIndex;
-            // Root: verify integrity & non-membership
+                                                      
             switch (myFlag) {
-                case ROOT:      // ROOT: Check non-membership
+                case ROOT:                                   
                     assert(sVO.size() == 1);
-                case RIGHT:     // RIGHT: check non-membership
-                case ASTRAY:    // ASTRAY: check non-membership
-                    // non-membership
+                case RIGHT:                                   
+                case ASTRAY:                                   
+                                     
                     if (txnIndex == -1) {
                         assert(!(query.overlap(lowerBound, upperBound, value) && bf->batchContain(query.addresses)));
-                    } else { // leaf astray
+                    } else {               
                         Transaction txn = (rootType % 2 == 0) ? blk->getTxn(txnIndex) : blk->getTxnCombine(txnIndex);
                         assert(!(query.overlap(lowerBound, upperBound, value) && bf->batchContain(query.addresses) && match(txn.getAddresses(), query.addresses)));
                     }
@@ -287,11 +287,11 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
                     sReVO.emplace(ReVONode(myFlag, bf, hash, lowerBound, upperBound, value));
                     break;
 
-                case LEFT:      // LEFT: check nothing
+                case LEFT:                            
                     sReVO.emplace(ReVONode(myFlag, bf, hash, lowerBound, upperBound, value));
                     break;
 
-                case RES:       // RES: check membership
+                case RES:                               
                     assert(query.overlap(lowerBound, upperBound, value) && bf->batchContain(query.addresses));
                     resVal = value;
 
@@ -322,33 +322,33 @@ double singleVerify(const Query& query, stack<VONode> sVO, Block* blk, RootType 
         ReVONode reVO = sReVO.top();
         sReVO.pop();
 
-        if (reVO.myFlag == ROOT) { // ROOT: check non-membership
+        if (reVO.myFlag == ROOT) {                              
             metrics.rootNum += 1;
             end = system_clock::now();
             dur = duration_cast<microseconds>(end - startP);
             metrics.rootTime += dur.count();
             metrics.rootSize += reVO.bf->getSize() * sizeof(unsigned char);
             start = system_clock::now();
-        } else if (reVO.myFlag == RES) { // RES
+        } else if (reVO.myFlag == RES) {       
             metrics.resNum += 1;
-            metrics.resNodeNum += nodeSize; // Assuming nodeSize applies here? Need clarification. Maybe totalNodeNum is better.
+            metrics.resNodeNum += nodeSize;                                                                                     
             end = system_clock::now();
             dur = duration_cast<microseconds>(end - startP);
             metrics.resTime += dur.count();
             metrics.resSize += reVO.bf->getSize() * sizeof(unsigned char);
             start = system_clock::now();
-        } else if (reVO.myFlag == ASTRAY || reVO.myFlag == RIGHT || reVO.myFlag == LEFT) { // ASTRAY / RIGHT / LEFT
+        } else if (reVO.myFlag == ASTRAY || reVO.myFlag == RIGHT || reVO.myFlag == LEFT) {                         
             metrics.astrayNum += 1;
-            metrics.astrayNodeNum += nodeSize; // Assuming nodeSize applies here? Need clarification. Maybe totalNodeNum is better.
+            metrics.astrayNodeNum += nodeSize;                                                                                     
             end = system_clock::now();
             dur = duration_cast<microseconds>(end - startP);
             metrics.astrayTime += dur.count();
             metrics.astraySize += reVO.bf->getSize() * sizeof(unsigned char);
             start = system_clock::now();
         }
-        // Update total counts regardless of type
+                                                 
         metrics.totalNum += 1;
-        metrics.totalNodeNum += nodeSize; // Assuming nodeSize refers to nodes in sVO processed
+        metrics.totalNodeNum += nodeSize;                                                      
     }
 
     for (auto ptr: bfGC)
@@ -369,24 +369,24 @@ pair<double, queue<stack<VONode>>> chainQueryMBFT(const Chain& chain, Query quer
     assert(1 <= currentBlk && currentBlk <= endBlk && endBlk <= chain.getSize());
 
     uint32_t combineCycle = chain.getCombineCycle();
-    // MerkleBFNode* root;
+                          
     Block* blk;
 
     RootType rootType;
 
-    // Check if the chain is constructed to support the queried aggregation.
+                                                                            
     assert(chain.support(query.agg));
 
     while (currentBlk <= endBlk) {
-        rootType = (RootType)(2 * query.agg); // single root type
-        if (combineCycle && currentBlk % combineCycle == 1 && currentBlk + combineCycle - 1 <= endBlk) {    // Search Combined MBF-tree
+        rootType = (RootType)(2 * query.agg);                    
+        if (combineCycle && currentBlk % combineCycle == 1 && currentBlk + combineCycle - 1 <= endBlk) {                               
             currentBlk += combineCycle - 1;
-            rootType = (RootType)(2 * query.agg + 1); // combine root type
+            rootType = (RootType)(2 * query.agg + 1);                     
         }
         blk = chain.getBlock(currentBlk);
         tie(resTmp, VO) = singleQuery(blk, rootType, query);
 
-        // Update res & vVO
+                           
         if (resTmp > res) {
             res = resTmp;
             query.earlyValue = res;
@@ -416,18 +416,18 @@ bool chainVerifyMBFT(Query query, double res, queue<stack<VONode>> vVO, const Ch
 
     RootType rootType;
 
-    // Check if the chain is constructed to support the queried aggregation.
+                                                                            
     assert(chain.support(query.agg));
 
     while (currentBlk <= endBlk) {
-        rootType = (RootType)(2 * query.agg); // single root type
-        if (combineCycle && currentBlk % combineCycle == 1 && currentBlk + combineCycle - 1 <= endBlk) {    // Search Combined MBF-tree
+        rootType = (RootType)(2 * query.agg);                    
+        if (combineCycle && currentBlk % combineCycle == 1 && currentBlk + combineCycle - 1 <= endBlk) {                               
             currentBlk += combineCycle - 1;
-            rootType = (RootType)(2 * query.agg + 1); // combine root type
+            rootType = (RootType)(2 * query.agg + 1);                     
         }
         blk = chain.getBlock(currentBlk);
 
-        // verify = singleVerify(query, vVO.front(), n RootHash, nSeed, paramBF);
+                                                                                 
         resV = singleVerify(query, vVO.front(), blk, rootType, metrics);
 
 
@@ -459,7 +459,7 @@ pair<double, queue<vector<Transaction>>> chainQueryMHT(const Chain& chain, Query
     Block* block;
     vector<Transaction> vTxns;
 
-    // Check if it's MHT
+                        
     assert(chain.adsType == MHT);
 
     while (currentBlk <= endBlk) {
@@ -520,7 +520,7 @@ bool chainVerifyMHT(Query query, double resIn, queue<vector<Transaction>> vVO, c
     vector<Transaction> vTxns;
     MerkleNode* root;
 
-    // Check if it's MHT
+                        
     assert(chain.adsType == MHT);
 
     while (currentBlk <= endBlk) {
@@ -528,11 +528,11 @@ bool chainVerifyMHT(Query query, double resIn, queue<vector<Transaction>> vVO, c
         hash = block->getRootMHT()->getHash();
 
         vTxns = vVO.front();
-        // Check hash
+                     
         root = new MerkleNode(vTxns, chain.nSeed);
         assert(root->getHash() == hash);
 
-        // Update result
+                        
         for (Transaction txn : vTxns) {
             amount = txn.getAmount();
             addrs = txn.getAddresses();
@@ -588,7 +588,7 @@ pair<double, queue<vector<Transaction>>> chainQueryVChain(const Chain& chain, Qu
     Block* block;
     vector<Transaction> vTxns;
 
-    // Check if it's MHT
+                        
     assert(chain.adsType == VCHAIN);
 
     while (currentBlk <= endBlk) {
@@ -650,13 +650,13 @@ bool chainVerifyVChain(Query query, double resIn, queue<vector<Transaction>> vVO
     vector<Transaction> vTxns;
     MerkleNode* root;
 
-    // Check if it's MHT
+                        
     assert(chain.adsType == VCHAIN);
 
     while (!vVO.empty()) {
         vTxns = vVO.front();
 
-        // Update result
+                        
         for (Transaction txn : vTxns) {
             amount = txn.getAmount();
             addrs = txn.getAddresses();

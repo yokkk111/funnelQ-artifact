@@ -122,8 +122,7 @@ def main() -> int:
             flush=True,
         )
 
-        # A match-count mismatch is a correctness failure, not an ordinary
-        # timeout/memory skip. Preserve the evidence and stop the formal run.
+
         if completed.returncode == 2:
             print("correctness mismatch detected; stop formal run", flush=True)
             return 2

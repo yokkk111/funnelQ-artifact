@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from fair_cost_runner_lib import (  # noqa: E402
+from fair_cost_runner_lib import (
     EPISODE_QUERIES,
     SAME_TX_QUERIES,
     memory_from_monitor,

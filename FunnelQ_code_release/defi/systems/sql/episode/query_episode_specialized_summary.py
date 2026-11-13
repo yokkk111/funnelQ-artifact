@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-"""Compatibility wrapper for the generic JSON-compiled episode SQL runner.
 
-The original file contained query-name-specific SQL templates.  It is kept only
-so old scripts do not break; execution is delegated to the generic compiler in
-``query_episode_summary_reuse_indexes.py``.
-"""
+
 from __future__ import annotations
 
 from pathlib import Path

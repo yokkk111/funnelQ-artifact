@@ -115,9 +115,9 @@ vector<string> fixedKeywords(const json& obj) {
         kw("raw_source=", obj.value("raw_source", "")),
         kw("src_rule=", obj.value("src_rule_id", ""))
     };
-    // MergeBloom reconstruction assumes equal-sized child filters. A fixed
-    // keyword schema gives every leaf the same nCurrentItems and therefore the
-    // exact power-of-two growth pattern required by the original hint codec.
+                                                                           
+                                                                               
+                                                                             
     if (out.size() != 16) throw logic_error("fixed keyword schema must contain 16 entries");
     return out;
 }
@@ -212,7 +212,7 @@ struct ReconstructedNode {
     double value = 0;
 };
 
-} // namespace
+}             
 
 uint32_t computePayloadHash(const string& payload, unsigned int seed) {
     uint32_t hash = 0;
@@ -319,7 +319,7 @@ TxnPool loadDefiEventPool(const string& csvPath, unsigned int seed, DefiLoadMetr
 }
 
 size_t SelectVONode::serializedSize() const {
-    // flag + hash + current-items + byte-vector length + bytes + bounds/value + string length + payload
+                                                                                                        
     return sizeof(uint8_t) + sizeof(hash) + sizeof(nCurrentItems) + sizeof(uint32_t) + data.size()
          + sizeof(lowerBound) + sizeof(upperBound) + sizeof(value) + sizeof(uint32_t) + payload.size();
 }
@@ -358,8 +358,8 @@ RootSelectionProof selectAllSingleRoot(Block* block, RootType rootType,
             hint.value = current->getValue();
             emitted.push(move(hint));
             if (metrics) { metrics->hintNodes++; metrics->hintBytes += emitted.top().data.size(); }
-            // Same order as original MBFT singleQuery: process right first, then left;
-            // the resulting VO stack is consumed left, right, hint by the verifier.
+                                                                                       
+                                                                                    
             pending.push(static_cast<MerkleBFNode*>(current->getLeftChild()));
             pending.push(static_cast<MerkleBFNode*>(current->getRightChild()));
         } else {
@@ -461,9 +461,9 @@ QueryOnlySelection selectAllChainNoProof(const Chain& chain,
                 continue;
             }
             if (node->hasChildren()) {
-                // Preserve the original MBFT query traversal order: the right
-                // child is visited before the left child because the stack is
-                // populated left then right.
+                                                                              
+                                                                              
+                                             
                 pending.push(static_cast<MerkleBFNode*>(node->getLeftChild()));
                 pending.push(static_cast<MerkleBFNode*>(node->getRightChild()));
                 continue;
@@ -746,16 +746,16 @@ void collectUniqueNodes(MerkleBFNode* root, vector<MerkleBFNode*>& nodes,
 
 void skipIndexNode(istream& in, uint64_t nodeCount, uint64_t txnCount,
                    SerializedMbftIndexMetrics& metrics) {
-    (void)readPod<uint32_t>(in);                    // node hash
-    (void)readPod<unsigned int>(in);                // current items
-    (void)readPod<unsigned int>(in);                // capacity
-    (void)readPod<double>(in);                      // false-positive rate
-    (void)readPod<unsigned int>(in);                // tweak
+    (void)readPod<uint32_t>(in);                                
+    (void)readPod<unsigned int>(in);                                
+    (void)readPod<unsigned int>(in);                           
+    (void)readPod<double>(in);                                            
+    (void)readPod<unsigned int>(in);                        
     const vector<unsigned char> bloom = readBytes(in);
     metrics.bloomBytes += bloom.size();
-    (void)readPod<uint32_t>(in);                    // lower bound
-    (void)readPod<uint32_t>(in);                    // upper bound
-    (void)readPod<double>(in);                      // aggregate value
+    (void)readPod<uint32_t>(in);                                  
+    (void)readPod<uint32_t>(in);                                  
+    (void)readPod<double>(in);                                        
     const int32_t leaf = readPod<int32_t>(in);
     const uint64_t left = readPod<uint64_t>(in);
     const uint64_t right = readPod<uint64_t>(in);
@@ -767,7 +767,7 @@ void skipIndexNode(istream& in, uint64_t nodeCount, uint64_t txnCount,
         throw runtime_error("serialized MBFT right child id is out of range");
 }
 
-} // namespace
+}             
 
 SerializedMbftIndexMetrics saveSerializedMbftIndex(const Chain& chain, const string& path) {
     ofstream out(path, ios::binary | ios::trunc);

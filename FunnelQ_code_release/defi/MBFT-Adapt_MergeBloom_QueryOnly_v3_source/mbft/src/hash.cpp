@@ -29,7 +29,7 @@ FORCE_INLINE uint32_t fmix32 ( uint32_t h )
   return h;
 }
 
-//-----------------------------------------------------------------------------
+                                                                               
 
 void MurmurHash3_x86_32 ( const void * key, int len, uint32_t seed, void * out )
 {
@@ -41,8 +41,8 @@ void MurmurHash3_x86_32 ( const void * key, int len, uint32_t seed, void * out )
   const uint32_t c1 = 0xcc9e2d51;
   const uint32_t c2 = 0x1b873593;
 
-  //----------
-  // body
+              
+         
 
   const uint32_t * blocks = (const uint32_t *)(data + nblocks*4);
 
@@ -58,8 +58,8 @@ void MurmurHash3_x86_32 ( const void * key, int len, uint32_t seed, void * out )
     h1 = h1*5+0xe6546b64;
   }
 
-  //----------
-  // tail
+              
+         
 
   const uint8_t * tail = (const uint8_t*)(data + nblocks*4);
 
@@ -72,8 +72,8 @@ void MurmurHash3_x86_32 ( const void * key, int len, uint32_t seed, void * out )
           k1 *= c1; k1 = ROTL32(k1,15); k1 *= c2; h1 ^= k1;
   };
 
-  //----------
-  // finalization
+              
+                 
 
   h1 ^= len;
 

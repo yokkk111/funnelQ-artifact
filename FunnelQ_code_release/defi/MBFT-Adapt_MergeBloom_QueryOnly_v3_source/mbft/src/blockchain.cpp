@@ -9,9 +9,9 @@ bool ascendSum(const Transaction& a, const Transaction& b) {return a.sketches[1]
 bool ascendCountDistinct(const Transaction& a, const Transaction& b) {return a.sketches[2] < b.sketches[2];}
 
 
-/*
- * TxnPool **********************************
- * */
+  
+                                             
+     
 
 TxnPool::TxnPool(unsigned int nSeedIn, set<AggType> supportAggsIn, string inPath):
     nSeed(nSeedIn),
@@ -28,21 +28,21 @@ TxnPool::TxnPool(unsigned int nSeedIn, set<AggType> supportAggsIn, string inPath
     vector<string> addresses;
 
     double varRand;
-    vector<double> sketches(3);     // Count, sum, distinct count
-    uniform_real_distribution<double> uniformDist(0,1);   // Uniform (0,1) for count sketch
+    vector<double> sketches(3);                                  
+    uniform_real_distribution<double> uniformDist(0,1);                                    
     int currentBlk = 0;
 
     if (infile.is_open()) {
         while (getline(infile, sTxn)) {
-            // txid
+                   
             txid = ComputeTxnId(sTxn);
             regex_match(sTxn, m, reg);
 
-            // timestamp
+                        
             timestamp = stoi(m[1].str());
-            // amount
+                     
             amount = stoi(m[2].str());
-            // addresses
+                        
             assert(addresses.empty());
             string addrs = m[3].str();
 
@@ -57,19 +57,19 @@ TxnPool::TxnPool(unsigned int nSeedIn, set<AggType> supportAggsIn, string inPath
                 addresses.emplace_back(tmp);
             }
 
-            // sketches
+                       
             if (supportAggs.count(COUNT) || supportAggs.count(SUM)) {
                 default_random_engine engTxid(txid);
                 varRand = uniformDist(engTxid);
-                if (supportAggs.count(COUNT)) {         // count
+                if (supportAggs.count(COUNT)) {                 
                     sketches[0] = varRand;
                 }
-                if (supportAggs.count(SUM)) {           // sum
-                    // AMS sketch optimized for sum
+                if (supportAggs.count(SUM)) {                 
+                                                   
                     sketches[1] = ceil(-log2(1 - pow(varRand, 1.0/amount)));
                 }
             }
-            if (supportAggs.count(COUNT_DISTINCT)) {    // count distinct
+            if (supportAggs.count(COUNT_DISTINCT)) {                     
                 default_random_engine engValue(amount);
                 sketches[2] = uniformDist(engValue);
             }
@@ -107,11 +107,11 @@ uint32_t TxnPool::ComputeTxnId(string strTxn)
 }
 
 
-/*
- * Block **********************************
- * */
+  
+                                           
+     
 
-// For MHT
+          
 Block::Block(uint32_t timestampIn, const vector<Transaction>& vTxns, unsigned int nSeedIn, ADSType adsTypeIn):
     timestamp(timestampIn),
     nSeed(nSeedIn),
@@ -124,7 +124,7 @@ Block::Block(uint32_t timestampIn, const vector<Transaction>& vTxns, unsigned in
     rootMHT = new MerkleNode(vTxns, nSeedIn);
 }
 
-// For MBFT
+           
 Block::Block(uint32_t timestampIn, const vector<vector<Transaction>>& vvTxns, queue<RootType> qTypes, ParamBF paramBFIn,
              unsigned int nSeedIn, bool earlyStopIn, ADSType adsTypeIn, unsigned int nItemsCombineIn):
     timestamp(timestampIn),
@@ -141,18 +141,18 @@ Block::Block(uint32_t timestampIn, const vector<vector<Transaction>>& vvTxns, qu
     paramBFCombine.nItems = nItemsCombineIn;
 
     for (auto vTxns : vvTxns) {
-        if (vTransactions.empty() && (qTypes.front() & 1) == 0) {                                                     // Assign Txns
+        if (vTransactions.empty() && (qTypes.front() & 1) == 0) {                                                                   
             vTransactions.assign(vTxns.begin(), vTxns.end());
         }
         if (vTransactionsCombine.empty() && (qTypes.front() & 1) == 1) {
             vTransactionsCombine.assign(vTxns.begin(), vTxns.end());
         }
 
-        if (qTypes.front() & 1) {                                                               // Combined ADS
+        if (qTypes.front() & 1) {                                                                              
             assert(nItemsCombineIn);
             vRoots[qTypes.front()] = new MerkleBFNode(vTxns, paramBFCombine, nSeed, (AggType)(qTypes.front()/2), earlyStop, adsType);
 
-        } else {                                                                                // Single ADS
+        } else {                                                                                             
             vRoots[qTypes.front()] = new MerkleBFNode(vTxns, paramBF, nSeed, (AggType)(qTypes.front()/2), earlyStop, adsType);
         }
         qTypes.pop();
@@ -246,9 +246,9 @@ void Block::display() const
     }
 }
 
-/*
- * Chain **********************************
- * */
+  
+                                           
+     
 
 Chain::Chain(ParamBF paramBFIn, unsigned int nSeedIn, set<AggType> supportAggsIn, unsigned int combineCycleIn, bool earlyStopIn, ADSType adsTypeIn):
     paramBF(paramBFIn),

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded-memory, persistent MBFT offline index construction."""
+
 from __future__ import annotations
 
 import argparse

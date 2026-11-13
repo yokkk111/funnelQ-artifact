@@ -16,9 +16,9 @@ struct DefiLoadMetrics {
     uint64_t payloadBytes = 0;
 };
 
-// Loads FunnelQ canonical events and maps them to original MBFT transactions.
-// Every event receives the same fixed keyword schema so that MergeBloom child
-// filters remain reconstructible at every tree level.
+                                                                              
+                                                                              
+                                                      
 TxnPool loadDefiEventPool(const string& csvPath, unsigned int seed, DefiLoadMetrics* metrics = nullptr);
 
 uint32_t computePayloadHash(const string& payload, unsigned int seed);
@@ -37,11 +37,11 @@ struct SelectVONode {
     SelectFlag flag = SELECT_PRUNED;
     uint32_t hash = 0;
     unsigned int nCurrentItems = 0;
-    vector<unsigned char> data; // full MBF for pruned nodes, MergeBloom hint for SELECT_HINT
+    vector<unsigned char> data;                                                              
     uint32_t lowerBound = 0;
     uint32_t upperBound = 0;
     double value = 0;
-    string payload;             // only for SELECT_OPEN_LEAF
+    string payload;                                         
 
     size_t serializedSize() const;
 };
@@ -59,7 +59,7 @@ struct RootSelectionProof {
     uint32_t startBlock = 0;
     uint32_t endBlock = 0;
     RootType rootType = AMOUNT_ADS;
-    vector<SelectVONode> nodes; // verifier processing order
+    vector<SelectVONode> nodes;                             
 };
 
 struct SelectionMetrics {
@@ -92,20 +92,20 @@ struct VerifiedSelection {
     SelectionMetrics metrics;
 };
 
-// Query-only selection used by the DeFi performance baseline. It traverses
-// the same MBFT MergeBloom trees and applies the same Boolean/range pruning as
-// selectAllChain(), but emits no HINT/PRUNED VO nodes and runs no verifier.
-// Matching canonical payloads remain on the server and are passed to the
-// complex-event matcher.
+                                                                           
+                                                                               
+                                                                            
+                                                                         
+                         
 struct QueryOnlySelection {
     vector<string> payloads;
     SelectionMetrics metrics;
 };
 
-// Portable, query-complete snapshot metrics for the DeFi MBFT adaptation.
-// The snapshot stores canonical leaf payloads plus every unique MergeBloom
-// node (including shared odd-tree children via node ids), so its byte size is
-// an actual serialized index size rather than an in-memory estimate.
+                                                                          
+                                                                           
+                                                                              
+                                                                     
 struct SerializedMbftIndexMetrics {
     uint64_t fileBytes = 0;
     uint64_t blocks = 0;
@@ -143,4 +143,4 @@ void writePayloadsJsonl(const vector<string>& payloads, const string& path);
 void writeSelectionMetricsJson(const SelectionMetrics& metrics, const string& path,
                                const string& eventType = "");
 
-#endif // MBFT_ADAPT_H
+#endif                

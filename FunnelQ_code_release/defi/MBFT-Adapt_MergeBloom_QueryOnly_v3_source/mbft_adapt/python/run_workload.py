@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the five FunnelQ DeFi queries over MBFT-verified atomic candidates."""
+
 from __future__ import annotations
 
 import argparse

@@ -193,8 +193,8 @@ def run_monitored(
     write_json(command_path, command)
     t0 = time.perf_counter()
     try:
-        # The monitor owns the Job handle and enforces timeout by terminating
-        # the complete Job. Do not externally kill only the monitor process.
+
+
         proc = subprocess.run(cmd, cwd=str(cwd), text=True, capture_output=True)
         timed_out = False
     except subprocess.TimeoutExpired as exc:
@@ -302,9 +302,8 @@ def query_json(mode: str, system: str, qname: str) -> Path:
 
 
 def materialize_hgmatch_episode_query_json(source: Path, outdir: Path) -> Path:
-    # Current HGMatch runner accepts the same anchored-episode JSON used by
-    # HVCEQ/SQL. Keep this hook so run_episode_window_sensitivity.py can call a
-    # stable adapter even if a future HGMatch-specific query name is needed.
+
+
     return source
 
 

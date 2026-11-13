@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from systems.hvceq.episode.query_episode_encoded_sidecar import EncodedRuntime, load_query  # noqa: E402
-from systems.hvceq.rust_integer_kernel import (  # noqa: E402
+from systems.hvceq.episode.query_episode_encoded_sidecar import EncodedRuntime, load_query
+from systems.hvceq.rust_integer_kernel import (
     available as rust_kernel_available,
     match_integer_domains,
     refine_anchor_domains,
@@ -186,7 +186,7 @@ class EpisodeAccessor:
         return range(l, r)
 
     def posting(self, etype: str, field: str) -> Dict[int, List[int]]:
-        """Role-aware posting directory for one event type and role field."""
+
         key = (etype, field)
         if key in self._postings:
             return self._postings[key]
@@ -507,10 +507,8 @@ def candidate_indices(acc: EpisodeAccessor, spec: dict, bindings: Dict[str, int]
     etype = str(spec.get("type", ""))
     if etype not in SUPPORTED_TYPES:
         return []
-    # Generic role-aware postings, but with an adaptive base iterator.  A naive
-    # implementation that iterates a global posting list for every anchor can be
-    # slower than scanning the small episode window.  We therefore choose the
-    # smallest among the episode-window slice and all bound-role posting lists.
+
+
     constraints: List[Tuple[str, int, List[int]]] = []
     protocol = norm_str(spec.get("protocol", ""))
     if protocol:
@@ -535,12 +533,8 @@ def candidate_indices(acc: EpisodeAccessor, spec: dict, bindings: Dict[str, int]
         return window
     if any(len(lst) == 0 for _field, _value, lst in constraints):
         return []
-    # Use the smaller iterator: local window range, a single-role posting, or
-    # one fixed schema-level compound role directory.  The latter is built for
-    # every event in the encoded sidecar (not for a query) and is the natural
-    # implementation of a role-aware posting signature.  Without it, a common
-    # join such as swap(taker=$u, token_sold=$x) repeatedly intersects two
-    # global postings in Python for every episode.
+
+
     base_kind = "window"
     base_items: Iterable[int] = window
     base_len = len(window)
@@ -642,15 +636,8 @@ def candidate_time_bounds(
     lo_ord: int,
     hi_ord: int,
 ) -> Tuple[int, int]:
-    """Push JSON temporal edges into the candidate iterator.
 
-    `order` is a strict partial order over query events.  The older matcher
-    checked these edges only after it had materialised a candidate from the
-    complete episode range, which needlessly enumerated all events before a
-    selected predecessor (and, for non-linear plans, after a selected
-    successor).  These bounds are a semantics-preserving generic compilation
-    of the order predicates; they do not depend on a query name or template.
-    """
+
     low = int(lo_ord)
     high = int(hi_ord)
     for left, right in query.get("order", []):
@@ -661,8 +648,8 @@ def candidate_time_bounds(
             low = max(low, acc.event_ord(etype, idx))
         if left == qid and right in selected:
             etype, idx = selected[right]
-            # candidate_indices uses an inclusive upper bound.  Strictness is
-            # retained by excluding the selected successor itself below.
+
+
             high = min(high, acc.event_ord(etype, idx) - 1)
     return low, high
 
@@ -677,23 +664,14 @@ def terminal_aggregate_count(
     lo_ord: int,
     hi_ord: int,
 ) -> int | None:
-    """Return an exact terminal-domain cardinality when it is safe to aggregate.
 
-    This is deliberately narrow.  It is a generic implementation of the
-    final `|D(p | mu)|` cardinality from the local matcher, not a
-    query-template formula: it is enabled only when a fixed schema-level
-    role directory represents the whole terminal domain and every remaining
-    predicate is either an indexed role anti-join or can be certified from
-    the temporal bounds.  Binding output always uses the ordinary
-    event-by-event matcher.
-    """
+
     etype = str(spec.get("type", ""))
     roles = active_roles(spec)
     if spec.get("_attr_filters") or norm_str(spec.get("protocol", "")):
         return None
-    # Local matching requires injective event mappings.  A direct cardinality
-    # is sound only when temporal bounds already keep every selected event
-    # outside the terminal candidate interval.
+
+
     for selected_type, selected_idx in selected.values():
         selected_ord = acc.event_ord(selected_type, selected_idx)
         if int(lo_ord) < selected_ord <= int(hi_ord):
@@ -706,9 +684,7 @@ def terminal_aggregate_count(
         if raw in bindings:
             bound[str(field)] = int(bindings[raw])
 
-    # Compile terminal inequality predicates from JSON into per-role excluded
-    # values.  This remains a generic Theta evaluation: unsupported terminal
-    # fields simply keep the ordinary local matcher path.
+
     excluded: Dict[str, set[int]] = defaultdict(set)
     for left, left_field, right, right_field in query.get("neq_constraints", []):
         left = str(left)
@@ -724,18 +700,15 @@ def terminal_aggregate_count(
         if other_qid not in selected:
             return None
         if terminal_field == "event_id":
-            # Injectivity has already been certified by the time-range check
-            # above: no selected event lies in the terminal domain.
+
+
             continue
         if terminal_field not in {"token_bought", "pool"}:
             return None
         other_type, other_idx = selected[other_qid]
         excluded[terminal_field].add(acc.role(other_type, other_idx, other_field))
 
-    # `complete_*` directories contain exactly the canonical events where all
-    # listed schema roles are present.  Thus unbound terminal variables still
-    # obey Feasible(...): they receive a non-zero role value, even though the
-    # count-only execution does not materialize their individual bindings.
+
     if etype == "swap":
         schema_roles = {"taker", "token_sold", "token_bought", "pool"}
         if set(roles) != schema_roles or set(bound) != {"taker", "token_sold"}:
@@ -789,7 +762,7 @@ def choose_next_qid(acc: EpisodeAccessor, query: dict, selected: Dict[str, Tuple
 
 
 def compile_match_order(query: dict, semantic_qid: str) -> List[str]:
-    """Compile one dependency-aware topological matching order from JSON."""
+
     sp = specs(query)
     remaining = set(sp)
     remaining.remove(semantic_qid)

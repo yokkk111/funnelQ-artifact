@@ -1085,10 +1085,10 @@ pub fn load_store_from_sqlite(sqlite_path: &str) -> Result<InMemoryStore> {
     })
 }
 
-/// Query-time loader: keep the SQLite store on disk and materialize only
-/// transaction closures that can contain a match.  Every same-tx match must
-/// contain the selected (rarest) query event type, so this is semantics
-/// preserving while avoiding deserializing the complete hyperedge table.
+                                                                         
+                                                                            
+                                                                        
+                                                                         
 pub fn load_store_for_query_from_sqlite(sqlite_path: &str, query: &QuerySpec) -> Result<InMemoryStore> {
     let conn = Connection::open(sqlite_path)?;
     let mut registry = HashMap::new();

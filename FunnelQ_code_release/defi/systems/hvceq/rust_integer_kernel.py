@@ -174,7 +174,7 @@ def match_integer_domains(
     range_starts: np.ndarray,
     range_ends: np.ndarray,
 ) -> Dict[str, int | str]:
-    """Execute a compiled count-only integer match directly over NumPy buffers."""
+
     qids = list(qids)
     qpos = {qid: i for i, qid in enumerate(qids)}
     variables: Dict[str, int] = {}

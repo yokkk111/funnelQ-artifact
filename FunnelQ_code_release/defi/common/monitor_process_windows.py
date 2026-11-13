@@ -124,7 +124,7 @@ def create_job(name, memory_limit_bytes):
 
 
 def open_and_join_job(name):
-    # JOB_OBJECT_ASSIGN_PROCESS | JOB_OBJECT_QUERY
+
     handle = kernel32.OpenJobObjectW(0x0001 | 0x0004, False, name)
     if not handle:
         win_error("OpenJobObjectW")
@@ -347,8 +347,8 @@ def main():
             time.sleep(max(1, args.sample_interval_ms) / 1000.0)
 
         rc = wrapper.wait()
-        # The wrapper waits for the target. Give any unexpected descendants a
-        # brief chance to exit, then terminate the whole Job if they remain.
+
+
         deadline = time.monotonic() + 2.0
         final_job = query_job(job_handle)
         while final_job["active_processes"] and time.monotonic() < deadline:
@@ -363,8 +363,8 @@ def main():
                 time.sleep(0.05)
                 final_job = query_job(job_handle)
         if rc != 0 and not stop_reason:
-            # Windows returns an implementation-dependent failure code when the
-            # Job commit hard limit prevents an allocation.
+
+
             stop_reason = "target_failed_or_job_memory_limit"
         t1 = time.perf_counter()
         report = {

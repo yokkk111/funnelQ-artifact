@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-"""Compatibility entrypoint for the generic JSON-compiled HVCEQ SameTx runner.
 
-The previous implementation dispatched by query_name to five specialized
-physical plans.  The fair-cost generic-engine setting requires the query
-semantics to come from the query JSON, so this wrapper preserves the old CLI
-path while delegating to query_same_tx_generic.py.
-"""
+
 from __future__ import annotations
 
 import sys

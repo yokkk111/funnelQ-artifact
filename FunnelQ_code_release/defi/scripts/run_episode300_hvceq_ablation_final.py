@@ -18,7 +18,7 @@ SCRIPTS_DIR = ROOT / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from fair_cost_runner_lib import (  # noqa: E402
+from fair_cost_runner_lib import (
     EPISODE_QUERIES,
     WORK_ROOT,
     latest_stores_dir,
@@ -32,7 +32,7 @@ from fair_cost_runner_lib import (  # noqa: E402
     write_json,
 )
 
-from systems.hvceq.episode.query_episode_generic import (  # noqa: E402
+from systems.hvceq.episode.query_episode_generic import (
     EpisodeAccessor,
     EncodedRuntime,
     base_filter,
@@ -102,15 +102,8 @@ def effective_episode_query_json(qname: str, outdir: Path) -> Path:
 
 
 def build_cand0(acc: EpisodeAccessor, query: dict, semantic_qid: str, anchor_enabled: bool) -> List[Tuple[int, int, int]]:
-    """Return episode closures.
 
-    Full/no-refined/no-synopsis use the anchor signature recall: only closures whose
-    inducing flashloan is compatible with the semantic anchor event enter Cand0.
 
-    No-anchor disables this recall and starts from all precomputed flashloan-induced
-    episode closures. The exact matcher still binds the semantic anchor event to the
-    inducing closure anchor, preserving anchored-episode query semantics.
-    """
     sp = specs(query)
     sem_spec = sp[semantic_qid]
     cand0: List[Tuple[int, int, int]] = []

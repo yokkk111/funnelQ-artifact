@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <algorithm>
 
-// Merkle Node -------------------------------------------------------------
+                                                                            
 
 uint32_t MerkleNode::Hash(const uint32_t hash1, const uint32_t hash2) const
 {
@@ -54,7 +54,7 @@ vector<MerkleNode *> MerkleNode::Merge(vector<MerkleNode *>& vChildNodes)
 {
 	assert(!vChildNodes.empty());
 	while(vChildNodes.size() > 1){
-		if (vChildNodes.size() & 1) {	// is odd
+		if (vChildNodes.size() & 1) {	         
 			vChildNodes.push_back(vChildNodes.back());
 		}
 		vector<MerkleNode *> vParentNodes(vChildNodes.size() / 2);
@@ -133,7 +133,7 @@ void MerkleNode::printBFS()
 {
 	queue<MerkleNode *> unvisited;
 
-	unvisited.push(this); // push root node
+	unvisited.push(this);                  
 	unsigned int cNodes = 1;
 	unsigned int cPower = 1;
 
@@ -153,7 +153,7 @@ void MerkleNode::printBFS()
 	}
 }
 
-// Merkle BF node -------------------------------------------------------------
+                                                                               
 
 uint32_t MerkleBFNode::Hash(const uint32_t hash1, const uint32_t hash2, uint32_t lBound, uint32_t uBound, double value, BloomFilter * pBF) const
 {
@@ -206,8 +206,8 @@ MerkleBFNode::MerkleBFNode(const vector<Transaction>& vTxns, ParamBF paramBFIn, 
         bf(nullptr),
         earlyStop(earlyStopIn),
         adsType(adsTypeIn)
-//    pLeftChild(nullptr),
-//    pRightChild(nullptr)
+                          
+                          
 {
     vector<MerkleBFNode *> leaves(vTxns.size());
     ParamBF paramBF = paramBFIn;
@@ -226,11 +226,11 @@ MerkleBFNode::MerkleBFNode(const vector<Transaction>& vTxns, ParamBF paramBFIn, 
 
     bf = pRoot->getBF();
     value = pRoot->getValue();
-    // Preserve the leaf index when a block contains exactly one transaction.
-    // The original MAX workload never needed to open this wrapper as a report
-    // leaf, but select-all must recover its canonical event payload.
+                                                                             
+                                                                              
+                                                                     
     leafTxnIndex = pRoot->getLeafTxnIndex();
-    // The final root is never merged again after construction.
+                                                               
     vector<uint32_t>().swap(bf->vHash);
 
     pRoot->setPtrNull();
@@ -245,7 +245,7 @@ vector<MerkleBFNode *> MerkleBFNode::Merge(vector<MerkleBFNode *>& vChildNodes)
     MerkleBFNode* right;
     BloomFilter* parentBF;
 	while(vChildNodes.size() > 1){
-		if (vChildNodes.size() & 1) {	// is odd
+		if (vChildNodes.size() & 1) {	         
 			vChildNodes.push_back(vChildNodes.back());
 		}
 		vector<MerkleBFNode *> vParentNodes(vChildNodes.size() / 2);
@@ -253,16 +253,16 @@ vector<MerkleBFNode *> MerkleBFNode::Merge(vector<MerkleBFNode *>& vChildNodes)
 			left = vChildNodes[2 * i];
 			right = vChildNodes[2 * i + 1];
 
-			// merge bf using the original MergeBloom construction. Once the
-            // parent has copied both hash-position lists, the child build-only
-            // vHash vectors are no longer required by query generation or hint
-            // reconstruction. Releasing them preserves identical vData, hints,
-            // and node hashes while avoiding O(n log n) retained build memory.
+			                                                                
+                                                                               
+                                                                               
+                                                                               
+                                                                               
 			parentBF = left->bf->merge(right->bf);
             vector<uint32_t>().swap(left->bf->vHash);
             if (right != left) vector<uint32_t>().swap(right->bf->vHash);
 
-            // compute hash
+                           
 			uint32_t lHash = left->getHash();
 			uint32_t rHash = right->getHash();
             uint32_t lBound = min(left->getLowerBound(), right->getLowerBound());
@@ -337,7 +337,7 @@ void MerkleBFNode::printBFS()
 {
 	queue<MerkleNode *> unvisited;
 
-	unvisited.push(this); // push root node
+	unvisited.push(this);                  
 	unsigned int cNodes = 1;
 	unsigned int cPower = 1;
 
@@ -347,7 +347,7 @@ void MerkleBFNode::printBFS()
 	        unvisited.push(current->getLeftChild());
 	    if (current->getRightChild() != nullptr)
 	        unvisited.push(current->getRightChild());
-	    // cout << current->getHash() << " " << current->getBF().getBinBF()<< endl;
+	                                                                               
         cout << current->getHash()<< endl;
 		cout << "nCurrentItems: " << current->getBF()->nCurrentItems << endl;
 	    unvisited.pop();

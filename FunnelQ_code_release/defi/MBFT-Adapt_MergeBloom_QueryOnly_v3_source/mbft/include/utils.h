@@ -23,7 +23,7 @@
 using namespace std;
 using namespace chrono;
 
-// 0-MAX(mandatory), 1-COUNT, 2-SUM, 3-COUNT_DISTINCT
+                                                     
 enum AggType {MAX, COUNT, SUM, COUNT_DISTINCT};
 
 enum RootType {AMOUNT_ADS, AMOUNT_COMBINE_ADS, COUNT_ADS, COUNT_COMBINE_ADS,
@@ -31,64 +31,64 @@ enum RootType {AMOUNT_ADS, AMOUNT_COMBINE_ADS, COUNT_ADS, COUNT_COMBINE_ADS,
 
 enum ADSType {MHT, MBFT, MBFT_BF, VCHAIN};
 
-// extern int astryReconstNum;
-// extern int reconstNum;
-// extern double hintSize;
-// extern double reconstTime;
-// extern double otherTime;
-// extern double pureTime;
+                              
+                         
+                          
+                             
+                           
+                          
 
-// extern double rootTime;
-// extern double resTime;
-// extern double astrayTime;
+                          
+                         
+                            
 
-// extern double rootSize;
-// extern double resSize;
-// extern double astraySize;
+                          
+                         
+                            
 
-// extern int rootNum;
-// extern int resNum;
-// extern int astrayNum;
-// extern int totalNum;
-// extern int resNodeNum;
-// extern int astrayNodeNum;
-// extern int totalNodeNum;
+                      
+                     
+                        
+                       
+                         
+                            
+                           
 
 struct ExperimentMetrics {
-    // General Performance Metrics (Previously separate Acc vectors)
-    double queryTime = 0.0;   // Time for the query phase (us)
-    double verifyTime = 0.0;  // Time for the verification phase (us)
-    double voSize = 0.0;      // Total size of the Verification Object (B)
-    double bfSize = 0.0;      // Total size of Bloom Filters within VO (B)
+                                                                    
+    double queryTime = 0.0;                                   
+    double verifyTime = 0.0;                                         
+    double voSize = 0.0;                                                  
+    double bfSize = 0.0;                                                  
 
-    // Detailed Verification Metrics (Previously global vars)
-    // Counters
-    double astryReconstNum = 0; // # of reconstructions involving an ASTRAY node
-    double reconstNum = 0;      // Total # of reconstructions
-    double rootNum = 0;         // # of ROOT nodes processed in verification
-    double resNum = 0;          // # of RES nodes processed in verification
-    double astrayNum = 0;       // # of ASTRAY/LEFT/RIGHT nodes processed in verification
-    double totalNum = 0;        // Total # of VO nodes processed in verification
-    double resNodeNum = 0;      // # RES leaf nodes
-    double astrayNodeNum = 0;   // # ASTRAY/LEFT/RIGHT/ROOT nodes
-    double totalNodeNum = 0;    // Total # nodes based on flags
+                                                             
+               
+    double astryReconstNum = 0;                                                 
+    double reconstNum = 0;                                   
+    double rootNum = 0;                                                     
+    double resNum = 0;                                                     
+    double astrayNum = 0;                                                                
+    double totalNum = 0;                                                        
+    double resNodeNum = 0;                         
+    double astrayNodeNum = 0;                                    
+    double totalNodeNum = 0;                                   
 
-    // Sizes (Bytes)
-    double hintSize = 0.0;    // Total size of HINT data used
-    double rootSize = 0.0;    // Size of ROOT node BF
-    double resSize = 0.0;     // Total size of RES node BFs
-    double astraySize = 0.0;  // Total size of ASTRAY/LEFT/RIGHT node BFs
+                    
+    double hintSize = 0.0;                                   
+    double rootSize = 0.0;                           
+    double resSize = 0.0;                                  
+    double astraySize = 0.0;                                             
 
-    // Times (microseconds)
-    double reconstTime = 0.0; // Time spent in reconstruction
-    double otherTime = 0.0;   // Other verification time (pure - reconst - res - astray - root)
-    double pureTime = 0.0;    // Total time for singleVerify execution
-    double rootTime = 0.0;    // Time processing ROOT node
-    double resTime = 0.0;     // Time processing RES nodes
-    double astrayTime = 0.0;  // Time processing ASTRAY/LEFT/RIGHT nodes
+                           
+    double reconstTime = 0.0;                                
+    double otherTime = 0.0;                                                                    
+    double pureTime = 0.0;                                            
+    double rootTime = 0.0;                                
+    double resTime = 0.0;                                 
+    double astrayTime = 0.0;                                            
 
 
-    // Method to reset all metrics to zero
+                                          
     void reset() {
         queryTime = 0.0;
         verifyTime = 0.0;
@@ -118,7 +118,7 @@ struct ExperimentMetrics {
         astrayTime = 0.0;
     }
 
-    // Method to accumulate metrics from another instance
+                                                         
     void accumulate(const ExperimentMetrics& other) {
         queryTime += other.queryTime;
         verifyTime += other.verifyTime;
@@ -148,7 +148,7 @@ struct ExperimentMetrics {
         astrayTime += other.astrayTime;
     }
 
-    // Method to average metrics based on repeat count
+                                                      
     void average(int repeats) {
         if (repeats > 0) {
             double d_repeats = static_cast<double>(repeats);
@@ -183,7 +183,7 @@ struct ExperimentMetrics {
         }
     }
 
-    // Static method to write CSV header
+                                        
     static void writeHeader(std::ofstream& outfile, const string& firstColumnName) {
         outfile << firstColumnName << ",\tADS,\tquery time(us),\tverify time(us),\tsize(B),\tBF size(B),\t"
                 << "hint size(B),\t#reconstruct,\t#astrayRecon,\t"
@@ -194,8 +194,8 @@ struct ExperimentMetrics {
                 << "#resNode,\t#astrayNode,\t#totalNode" << endl;
     }
 
-    // Member method to write data row to CSV
-    // Takes the value for the first column (e.g., window size, range) as a string
+                                             
+                                                                                  
     void writeDataRow(std::ofstream& outfile, const string& firstColumnValue, int adsTypeIndex) const {
         outfile << firstColumnValue << ",\t" << adsTypeIndex << ",\t"
                 << queryTime << ",\t" << verifyTime << ",\t"
@@ -223,4 +223,4 @@ struct ExperimentMetrics {
 };
 
 
-#endif //UTILS_H
+#endif          

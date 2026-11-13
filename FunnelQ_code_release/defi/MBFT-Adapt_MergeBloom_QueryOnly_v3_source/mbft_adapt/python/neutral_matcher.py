@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-"""Neutral complex-event matcher for MBFT-Adapt verified atomic events.
 
-The matcher builds all temporary role/order indexes from the verified JSONL payloads.
-It does not read FunnelQ's anchor directories, closure synopses, support tables, or
-precomputed terminal counters. Index construction time is therefore part of the
-MBFT-Adapt client cost.
-"""
+
 from __future__ import annotations
 
 import argparse
@@ -14,7 +9,7 @@ import hashlib
 import json
 try:
     import resource
-except ImportError:  # Native Windows
+except ImportError:
     resource = None
 import time
 from collections import Counter, defaultdict
@@ -91,7 +86,7 @@ def load_verified_events(paths: Sequence[Path]) -> List[Event]:
                     continue
                 try:
                     event = Event.from_json(json.loads(line))
-                except Exception as exc:  # pragma: no cover - diagnostic path
+                except Exception as exc:
                     raise ValueError(f"invalid verified event at {path}:{line_no}: {exc}") from exc
                 if not event.event_id:
                     raise ValueError(f"missing event_id at {path}:{line_no}")
@@ -267,9 +262,8 @@ class SameTxMatcher:
 
 class EpisodeMatcher:
     def __init__(self, events: Sequence[Event]):
-        # Match the supplied FunnelQ builder's fallback order exactly:
-        # transactions by (block_number, block_time, tx_hash), then events by
-        # (seq_index, evt_index, event_id).
+
+
         tx_events: Dict[Tuple[str, str], List[Event]] = defaultdict(list)
         for event in events:
             tx_events[(event.closure_id, event.tx_hash)].append(event)
@@ -297,9 +291,8 @@ class EpisodeMatcher:
 
         self.by_type: Dict[str, List[Event]] = defaultdict(list)
         self.postings: Dict[Tuple[str, str, str], List[Event]] = defaultdict(list)
-        # Compound role postings are neutral, query-independent temporary indexes.
-        # They are built from verified candidates and their construction cost is
-        # reported as client index-build time.
+
+
         self.swap_taker_sold: Dict[Tuple[str, str], List[Event]] = defaultdict(list)
         self.swap_taker_sold_bought: Dict[Tuple[str, str, str], List[Event]] = defaultdict(list)
         self.swap_taker_sold_pool: Dict[Tuple[str, str, str], List[Event]] = defaultdict(list)
@@ -411,8 +404,8 @@ class EpisodeMatcher:
             if other_qid not in selected:
                 return None
             if terminal_field == "event_id":
-                # Strict temporal lower bounds place selected predecessors outside
-                # the terminal domain, so injectivity is already guaranteed.
+
+
                 continue
             excluded[terminal_field].add(norm(selected[other_qid].field(other_field)))
 
@@ -514,15 +507,13 @@ class EpisodeMatcher:
                     rec(pos + 1, bindings)
                     return
                 lo_ord = anchor.global_event_ord
-                # Compile every already-bound predecessor into the lower bound.
+
                 for left, right in query.get("order", []) or []:
                     if str(right) == qid and str(left) in selected:
                         lo_ord = max(lo_ord, selected[str(left)].global_event_ord)
                 candidate_events = self.candidates(spec, bindings, lo_ord, hi_ord)
-                # The final pattern event can be counted directly after exact
-                # Feasible/neq checks; no result materialization or recursive
-                # frame is needed. This is still client-side recomputation over
-                # the authenticated atomic candidates.
+
+
                 if pos == len(specs) - 1 and not materialize_limit:
                     aggregated = self.terminal_aggregate_count(
                         query, qid, spec, selected, bindings, lo_ord, hi_ord
@@ -576,7 +567,7 @@ class EpisodeMatcher:
 
 def peak_rss_mb() -> float:
     if resource is not None:
-        # Linux ru_maxrss is KiB.
+
         return float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1024.0
     import psutil
     info = psutil.Process().memory_info()

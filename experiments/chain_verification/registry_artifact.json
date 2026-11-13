@@ -1,0 +1,150 @@
+{
+  "compiler": "0.8.28+commit.7893614a.Emscripten.clang",
+  "settings": {
+    "evmVersion": "shanghai",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
+        ]
+      }
+    }
+  },
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n/// @notice Immutable-per-epoch registry for query-independent CSR manifest roots.\ncontract EpochRootRegistry {\n    address public immutable owner;\n    mapping(bytes32 => bytes32) private _epochRoots;\n    mapping(bytes32 => uint256) public committedAtBlock;\n\n    event EpochRootCommitted(bytes32 indexed epochId, bytes32 indexed epochRoot, uint256 blockNumber);\n\n    error NotOwner();\n    error ZeroEpochRoot();\n    error ConflictingEpochRoot(bytes32 existingRoot, bytes32 proposedRoot);\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    function commitEpochRoot(bytes32 epochId, bytes32 epochRoot) external {\n        if (msg.sender != owner) revert NotOwner();\n        if (epochRoot == bytes32(0)) revert ZeroEpochRoot();\n        bytes32 existing = _epochRoots[epochId];\n        if (existing != bytes32(0) && existing != epochRoot) {\n            revert ConflictingEpochRoot(existing, epochRoot);\n        }\n        if (existing == bytes32(0)) {\n            _epochRoots[epochId] = epochRoot;\n            committedAtBlock[epochId] = block.number;\n            emit EpochRootCommitted(epochId, epochRoot, block.number);\n        }\n    }\n\n    function getEpochRoot(bytes32 epochId) external view returns (bytes32) {\n        return _epochRoots[epochId];\n    }\n}\n",
+  "source_sha256": "f78da7daf75dfb495abcee90e65a9cf716f1cab11dd8574e935ef3bce3a378aa",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "existingRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "proposedRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ConflictingEpochRoot",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroEpochRoot",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "epochId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "epochRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "EpochRootCommitted",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "epochId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "epochRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "commitEpochRoot",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "committedAtBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "epochId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getEpochRoot",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60a0604052348015600e575f5ffd5b503360805260805161026d6100305f395f81816085015260fe015261026d5ff3fe608060405234801561000f575f5ffd5b506004361061004a575f3560e01c8063539d9f6a1461004e5780638da5cb5b14610080578063a00a4604146100bf578063c065f56f146100de575b5f5ffd5b61006d61005c366004610200565b60016020525f908152604090205481565b6040519081526020015b60405180910390f35b6100a77f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b039091168152602001610077565b61006d6100cd366004610200565b5f9081526020819052604090205490565b6100f16100ec366004610217565b6100f3565b005b336001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000161461013c576040516330cd747160e01b815260040160405180910390fd5b8061015a57604051634d514c7960e01b815260040160405180910390fd5b5f8281526020819052604090205480158015906101775750818114155b156101a35760405163b268c93360e01b8152600481018290526024810183905260440160405180910390fd5b806101fb575f83815260208181526040808320859055600182529182902043908190559151918252839185917f877df6417415563a666800e3ce54eb4b546ae14bba0deb67feebfafae463ab2e910160405180910390a35b505050565b5f60208284031215610210575f5ffd5b5035919050565b5f5f60408385031215610228575f5ffd5b5050803592602090910135915056fea2646970667358221220d837beed8380c9708a1548a50fa82e1e605fe9100e38abdce536f609e634c07f64736f6c634300081c0033",
+  "runtime_template": "0x608060405234801561000f575f5ffd5b506004361061004a575f3560e01c8063539d9f6a1461004e5780638da5cb5b14610080578063a00a4604146100bf578063c065f56f146100de575b5f5ffd5b61006d61005c366004610200565b60016020525f908152604090205481565b6040519081526020015b60405180910390f35b6100a77f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b039091168152602001610077565b61006d6100cd366004610200565b5f9081526020819052604090205490565b6100f16100ec366004610217565b6100f3565b005b336001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000161461013c576040516330cd747160e01b815260040160405180910390fd5b8061015a57604051634d514c7960e01b815260040160405180910390fd5b5f8281526020819052604090205480158015906101775750818114155b156101a35760405163b268c93360e01b8152600481018290526024810183905260440160405180910390fd5b806101fb575f83815260208181526040808320859055600182529182902043908190559151918252839185917f877df6417415563a666800e3ce54eb4b546ae14bba0deb67feebfafae463ab2e910160405180910390a35b505050565b5f60208284031215610210575f5ffd5b5035919050565b5f5f60408385031215610228575f5ffd5b5050803592602090910135915056fea2646970667358221220d837beed8380c9708a1548a50fa82e1e605fe9100e38abdce536f609e634c07f64736f6c634300081c0033"
+}

@@ -498,8 +498,8 @@ pub unsafe extern "C" fn hvceq_refine_anchor_domains(
             anchor_spec.occurrences,
             anchor_spec.occurrence_count as usize,
         );
-        // Preserve the Python event_matches_spec behavior: a later repeated
-        // occurrence in one unbound anchor spec overwrites the local value.
+                                                                            
+                                                                            
         for occurrence in anchor_occurrences {
             let var = occurrence.var_id as usize;
             bindings[var] = *occurrence.values.add(anchor_idx);

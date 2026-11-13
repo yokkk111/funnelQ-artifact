@@ -19,14 +19,14 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from systems.hvceq.same_tx.query_same_tx_summary_count import (  # noqa: E402
+from systems.hvceq.same_tx.query_same_tx_summary_count import (
     EncodedSameTxRuntime,
     can_assign,
     ensure_dir,
     load_query_json,
     norm_str,
 )
-from systems.hvceq.rust_integer_kernel import (  # noqa: E402
+from systems.hvceq.rust_integer_kernel import (
     available as rust_kernel_available,
     match_integer_domains,
     refine_same_tx_domains,
@@ -201,11 +201,8 @@ def estimate_anchor_hits(rt: EncodedSameTxRuntime, spec: dict) -> Tuple[int, int
     etid = spec_type_id(rt, spec)
     if etid == 0:
         return (10**18, 10**18)
-    # Fast statistical estimate.  The previous implementation tested every
-    # event against every candidate anchor spec at query time.  For the current
-    # JSON benchmark patterns most anchor candidates contain only variables, so
-    # a type-level anchor signature directory is sufficient and avoids an
-    # O(|E|) scan before every query.
+
+
     has_value_constant = bool(norm_str(spec.get("protocol", ""))) or any(
         (not is_var(raw)) and norm_str(raw)
         for field, raw in active_roles(spec).items()
@@ -666,12 +663,8 @@ def candidate_events_for_spec(
     selected: Dict[str, int],
     bindings: Dict[str, int],
 ) -> List[int]:
-    """Return locally feasible events before the full can_assign check.
 
-    This is the role-aware postings step at closure granularity: instead of
-    scanning every same-type event and letting can_assign reject most of them,
-    use already-bound variables/constants to prune by role ids first.
-    """
+
     etid = spec_type_id(rt, spec)
     raw_candidates = rt.tx_type_events.get(int(tx), {}).get(etid, [])
     if not raw_candidates:
@@ -701,7 +694,7 @@ def candidate_events_for_spec(
                     break
         if not ok:
             continue
-        # Cheap incremental temporal pruning.
+
         for left, right in query.get("order", []):
             if left == qid and right in selected:
                 if int(rt.seq_index[idx]) >= int(rt.seq_index[selected[right]]):
@@ -717,14 +710,7 @@ def candidate_events_for_spec(
 
 
 class SameTxTerminalCounter:
-    """Fixed role-aware counting directories for SameTx terminal domains.
 
-    The directories are schema-level, not query-name indexes. They support the
-    same count-only optimization used by the Episode runner: when the last
-    unbound pattern event can be represented exactly by a role posting domain,
-    the matcher counts |D(p | mu)| directly. Bindings/materialization still use
-    the ordinary event-by-event matcher.
-    """
 
     def __init__(self, rt: EncodedSameTxRuntime):
         self.rt = rt
@@ -928,14 +914,8 @@ def terminal_aggregate_count(
     lo_seq: int,
     hi_seq: int,
 ) -> int | None:
-    """Exact count for the final SameTx local candidate domain.
 
-    This is a generic count-only implementation of |D(p | mu)|. It is enabled
-    only when a fixed role-aware directory exactly represents the terminal
-    event domain and every terminal `neq` predicate can be evaluated through
-    indexed anti-join counts. Unsupported predicates fall back to normal
-    event-wise Feasible checks.
-    """
+
     if lo_seq >= hi_seq:
         return 0
     etype = str(spec.get("type", ""))
@@ -945,8 +925,8 @@ def terminal_aggregate_count(
     for flt in query.get("attr_filters", []):
         if str(flt.get("event")) == qid:
             return None
-    # Safe injectivity certificate. If a selected event can still lie inside
-    # the terminal time interval, ordinary matching must exclude it explicitly.
+
+
     for selected_idx in selected.values():
         seq = int(rt.seq_index[selected_idx])
         if int(lo_seq) < seq < int(hi_seq):
@@ -1033,16 +1013,8 @@ def should_enable_terminal_counter(
     mode: str,
     write_bindings: bool,
 ) -> Tuple[bool, str]:
-    """Decide whether SameTx should build heavy terminal-count directories.
 
-    Episode windows can contain millions of terminal candidates, so eager
-    counting directories are beneficial there.  SameTx closures are usually
-    small; building the same directories eagerly can dominate both memory and
-    latency.  The generic engine therefore keeps the optimization available but
-    enables it only when the candidate frontier is large enough to amortize the
-    directory cost.  This is a physical-plan decision; query semantics and the
-    JSON-compiled matcher are unchanged.
-    """
+
     if write_bindings:
         return False, "disabled_for_bindings_materialization"
     mode = str(mode or "auto").lower()
@@ -1051,10 +1023,7 @@ def should_enable_terminal_counter(
     if mode == "on":
         return True, "forced_on"
 
-    # Cheap upper-bound statistics that do not require building the heavy
-    # role-counting directories.  On the two-week SameTx workload Cand2 is only
-    # about 10K closures and terminal aggregation saves only thousands of
-    # leaves, while the directory costs ~150MB and hurts small queries.
+
     cand2_n = len(cand2)
     anchor_seed_n = sum(len(anchor_events_by_tx.get(int(tx), [])) for tx in cand2)
 
@@ -1133,9 +1102,8 @@ def generic_match(
                                     int(rt.seq_index[idx]),
                                 ])
                         return
-                    # Choose the remaining event with the smallest role-aware
-                    # local candidate set.  This keeps the generic matcher from
-                    # degenerating into a Cartesian-product enumerator.
+
+
                     remaining = [q for q in specs if q not in selected]
                     if len(remaining) == 1:
                         qid = remaining[0]

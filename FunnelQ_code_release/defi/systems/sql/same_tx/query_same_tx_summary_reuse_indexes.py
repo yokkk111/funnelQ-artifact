@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 
 from __future__ import annotations
 
@@ -132,8 +132,8 @@ def read_event_type_counts(conn: sqlite3.Connection, event_types: List[str]) -> 
 
 
 def choose_event_order_query_order(query: dict) -> List[EventSpec]:
-    # Alias assignment follows the query JSON, but the generated SQL no longer
-    # forces this order. SQLite may choose the physical join order after ANALYZE.
+
+
     specs: List[EventSpec] = []
     for idx, e in enumerate(query["events"]):
         specs.append(EventSpec(qid=e["id"], alias=f"t{idx}", event_type=e["type"], roles=dict(e.get("roles", {}))))
@@ -230,8 +230,8 @@ def clause_aliases(clause: str) -> set[str]:
 
 
 def build_from_optimizer_free(specs_prefix: List[EventSpec], alias_to_index: Dict[str, str]) -> str:
-    # Do not force CROSS JOIN or INDEXED BY. Query-specific indexes may exist,
-    # but SQLite is allowed to choose the physical join order and access path.
+
+
     return "\nJOIN ".join(f"event_atoms_flat AS {spec.alias}" for spec in specs_prefix)
 
 
@@ -304,7 +304,6 @@ def create_indexes(conn: sqlite3.Connection, ddl: List[str]) -> float:
     return time.perf_counter() - t0
 
 
-
 def timed_count_sql(conn: sqlite3.Connection, sql: str) -> Tuple[int, float]:
     t0 = time.perf_counter()
     row = conn.execute(sql).fetchone()
@@ -313,14 +312,8 @@ def timed_count_sql(conn: sqlite3.Connection, sql: str) -> Tuple[int, float]:
 
 
 def timed_summary_sql(conn: sqlite3.Connection, sql: str) -> Tuple[int, int, float]:
-    """Return COUNT(*) and COUNT(DISTINCT tx_hash) in one SQLite pass.
 
-    The older same-tx SQL baseline executed two independent aggregate
-    queries over the same self-join.  Besides doing duplicate work, that
-    path kept temporary SQLite structures alive long enough to inflate
-    peak RSS.  This summary query preserves the count-only semantics while
-    matching the episode SQL runner's single-aggregate style.
-    """
+
     t0 = time.perf_counter()
     row = conn.execute(sql).fetchone()
     t1 = time.perf_counter()

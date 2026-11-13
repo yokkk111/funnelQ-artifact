@@ -1,8 +1,8 @@
 #ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
-//#include <cstdint>
-//#include <vector>
+                    
+                   
 
 #include "utils.h"
 #include "merkle.h"
@@ -17,7 +17,7 @@ public:
     int getSize() const;
     uint32_t ComputeTxnId(string strTxn);
 
-    // Property
+               
     unsigned int nSeed;
     set<AggType> supportAggs;
     vector<Transaction> pool;
@@ -27,7 +27,7 @@ public:
 class Block {
 public:
     Block() = default;
-    Block(uint32_t timestamp, const vector<Transaction>& vTxns, unsigned int nSeed, ADSType adsType); // MHT
+    Block(uint32_t timestamp, const vector<Transaction>& vTxns, unsigned int nSeed, ADSType adsType);       
     Block(uint32_t timestamp, const vector<vector<Transaction>>& vvTxns, queue<RootType> qTypes, ParamBF paramBF,
           unsigned int nSeed, bool earlyStop, ADSType adsType, unsigned int nItemsCombine=0);
 
@@ -49,7 +49,7 @@ public:
     ParamBF getParamBF() const;
     ParamBF getParamBFCombine() const;
 
-    // Properties
+                 
     ParamBF paramBF;
     ParamBF paramBFCombine;
     unsigned int nSeed;
@@ -70,12 +70,12 @@ class Chain {
 public:
     Chain() = default;
 
-    /*
-     * supportAggs: txn, block & chain are constructed according to different aggregations: max, count, sum, count distinct.
-     *  - chain: record set of supported aggregation
-     *  - block: construct different MBF-tree root
-     *  - txn: construct different sketches
-     * */
+      
+                                                                                                                            
+                                                    
+                                                  
+                                           
+         
     Chain(ParamBF paramBF, unsigned int nSeed, set<AggType> supportAggs, unsigned int combineCycle, bool earlyStop, ADSType adsType);
 
     ~Chain();
@@ -95,7 +95,7 @@ public:
 
     void display() const;
 
-    // Property
+               
     ParamBF paramBF;
     unsigned int nSeed;
     unsigned int combineCycle;
@@ -106,4 +106,4 @@ public:
 };
 
 
-#endif //BLOCKCHAIN_H
+#endif               

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compatibility entrypoint for the generic JSON-compiled HVCEQ Episode runner."""
+
 from __future__ import annotations
 
 import sys

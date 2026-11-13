@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-"""Disk-backed, bounded-memory MBFT query-only atomic selection.
 
-The canonical CSV is streamed into fixed-size shards.  Each shard builds and
-queries an unmodified MBFT MergeBloom chain in a separate child process.  Its
-atomic candidates are appended to final JSONL streams before the next shard is
-processed, so only one chain is resident at a time.
-"""
+
 from __future__ import annotations
 
 import argparse
